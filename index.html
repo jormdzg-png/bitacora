@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitácora</title>
+<style>
+  :root {
+    --bg: #0b0d10;
+    --bg-elev: #12151a;
+    --line: #22262c;
+    --text: #e9e6df;
+    --text-dim: #8b8f96;
+    --text-faint: #565a61;
+    --accent: #b6905f;
+    --ok: #7a9b7e;
+    --bad: #c0655a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  body { min-height: 100vh; padding: 30px 16px 90px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-weight: 500; font-size: 24px; margin: 0 0 4px; }
+  .version-tag { font-size: 11px; color: var(--text-faint); margin-bottom: 20px; }
+
+  .banner {
+    background: var(--bg-elev); border: 1px solid var(--bad);
+    padding: 16px 18px; margin-bottom: 18px; font-size: 13.5px; line-height: 1.7; border-radius: 6px;
+  }
+  .banner.ok-banner { border-color: var(--ok); }
+  .banner input {
+    width: 100%; margin-top: 10px; background: var(--bg); border: 1px solid var(--line);
+    color: var(--text); padding: 10px 12px; border-radius: 5px; font-size: 13px;
+  }
+  .banner button { margin-top: 10px; }
+
+  .card { background: var(--bg-elev); border: 1px solid var(--line); padding: 18px 20px; margin-bottom: 14px; border-radius: 8px; }
+  .card h2 { font-weight: 500; font-size: 15px; margin: 0 0 14px; }
+
+  .row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .row:last-child { border-bottom: none; padding-bottom: 0; }
+  .row:first-child { padding-top: 0; }
+
+  button.toggle {
+    border: 1px solid var(--line); background: var(--bg); color: var(--text-dim);
+    padding: 7px 14px; border-radius: 5px; font-size: 13px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button.toggle.on { border-color: var(--accent); color: var(--accent); background: rgba(182,144,95,0.1); }
+
+  input[type=number] {
+    width: 80px; background: var(--bg); border: 1px solid var(--line); color: var(--text);
+    font-size: 15px; padding: 8px 10px; border-radius: 5px; text-align: center;
+  }
+  textarea, input[type=text] {
+    width: 100%; background: var(--bg); border: 1px solid var(--line); color: var(--text);
+    font-size: 14px; padding: 10px 12px; border-radius: 5px; resize: vertical; min-height: 60px;
+    font-family: inherit;
+  }
+
+  .ex-grid { display: flex; flex-direction: column; gap: 8px; }
+  .ex-row { display: flex; align-items: center; justify-content: space-between; padding: 4px 0; }
+
+  .goal-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .goal-row:last-child { border-bottom: none; }
+  .goal-row input[type=text] { flex: 1; padding: 8px 10px; font-size: 13.5px; }
+  .goal-del { background: none; border: none; color: var(--text-faint); font-size: 18px; cursor: pointer; padding: 4px 8px; }
+  .add-row { display: flex; gap: 8px; margin-top: 10px; }
+  .add-row input { flex: 1; }
+  .btn-plain {
+    background: none; border: 1px solid var(--line); color: var(--text-dim);
+    padding: 9px 16px; border-radius: 5px; cursor: pointer; font-size: 13px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-accent {
+    background: rgba(182,144,95,0.1); border: 1px solid var(--accent); color: var(--accent);
+    padding: 11px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; width: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .status-line { font-size: 12.5px; color: var(--text-faint); text-align: center; margin-top: 10px; min-height: 18px; }
+  .status-line.saved { color: var(--ok); }
+  .status-line.error { color: var(--bad); }
+
+  #fatalError {
+    display: none; background: #2a1414; border: 1px solid var(--bad); color: #f0c4bd;
+    padding: 16px 18px; margin-bottom: 16px; border-radius: 6px; font-size: 13px; white-space: pre-wrap; font-family: monospace;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Bitácora</h1>
+  <div class="version-tag">v2 — <span id="dateShown">cargando…</span></div>
+  <div id="fatalError"></div>
+  <div id="app">Cargando…</div>
+</div>
+
+<script>
+window.onerror = function(msg, src, line) {
+  var el = document.getElementById('fatalError');
+  el.style.display = 'block';
+  el.textContent = 'Error de JavaScript: ' + msg + ' (línea ' + line + ')\n\nManda una captura de esto.';
+};
+</script>
+<script>
+(function() {
+  var URL_KEY = 'bitacora_v2_script_url';
+  var DATA_KEY = 'bitacora_v2_data';
+
+  var scriptUrl = localStorage.getItem(URL_KEY) || '';
+  var data = {};
+  try { data = JSON.parse(localStorage.getItem(DATA_KEY) || '{}'); } catch(e) { data = {}; }
+
+  var EXERCISE_DAYS = [0, 2, 4];
+  var EXERCISES = [
+    { field: 'ejercicioFlexiones', label: 'Flexiones' },
+    { field: 'ejercicioSentadillas', label: 'Sentadillas' },
+    { field: 'ejercicioRemo', label: 'Remo con mancuerna' },
+    { field: 'ejercicioAbs', label: 'Abdominales' }
+  ];
+  var DAY_NAMES = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  var MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  var today = new Date();
+  var todayKey = today.getFullYear() + '-' + pad(today.getMonth()+1) + '-' + pad(today.getDate());
+  document.getElementById('dateShown').textContent = DAY_NAMES[today.getDay()] + ' ' + today.getDate() + ' de ' + MONTHS[today.getMonth()];
+
+  function emptyEntry() {
+    return {
+      pasos10k: false, sueño8h: false, agua: false, horasAyuno: 0,
+      ejercicioFlexiones: false, ejercicioSentadillas: false, ejercicioRemo: false, ejercicioAbs: false,
+      guitarra: false, guitarraMinutos: 0,
+      alimentacion: '', nota: '', objetivos: []
+    };
+  }
+  if (!data[todayKey]) data[todayKey] = emptyEntry();
+  var entry = data[todayKey];
+  if (!entry.objetivos) entry.objetivos = [];
+
+  function saveLocal() {
+    localStorage.setItem(DATA_KEY, JSON.stringify(data));
+  }
+  function esc(s) {
+    return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function escAttr(s) {
+    return (s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+  }
+
+  function el(html) {
+    var d = document.createElement('div');
+    d.innerHTML = html.trim();
+    return d.firstChild;
+  }
+
+  function build() {
+    var app = document.getElementById('app');
+    app.innerHTML = '';
+
+    if (scriptUrl) {
+      var okBanner = el('<div class="banner ok-banner">Conectada a Google Sheets.<br><span style="word-break:break-all; color:var(--text-faint); font-size:11.5px;">' + esc(scriptUrl) + '</span><br><button class="btn-plain" id="btnChangeUrl">Cambiar URL</button></div>');
+      app.appendChild(okBanner);
+      document.getElementById('btnChangeUrl').onclick = function() {
+        var v = window.prompt('Pega la nueva URL (termina en /exec):', scriptUrl);
+        if (v === null) return;
+        v = v.trim();
+        if (!v) return;
+        scriptUrl = v;
+        localStorage.setItem(URL_KEY, v);
+        build();
+      };
+    } else {
+      var banner = el('<div class="banner">' +
+        '<b>Primero conecta Google Sheets.</b><br>Pega la URL de Apps Script (termina en /exec).' +
+        '<input type="text" id="urlInput" placeholder="https://script.google.com/macros/s/AKfycb.../exec">' +
+        '<button class="btn-plain" id="btnSaveUrl">Guardar URL</button></div>');
+      app.appendChild(banner);
+      document.getElementById('btnSaveUrl').onclick = function() {
+        var v = document.getElementById('urlInput').value.trim();
+        if (!v) return;
+        scriptUrl = v;
+        localStorage.setItem(URL_KEY, v);
+        build();
+      };
+    }
+
+    var cuerpo = el('<div class="card"><h2>Cuerpo</h2><div id="cuerpoRows"></div></div>');
+    app.appendChild(cuerpo);
+    var cuerpoRows = cuerpo.querySelector('#cuerpoRows');
+    [['pasos10k','10,000 pasos'], ['sueño8h','8 horas de sueño'], ['agua','Agua suficiente']].forEach(function(pair) {
+      var field = pair[0], label = pair[1];
+      var row = el('<div class="row"><span>' + label + '</span><button class="toggle ' + (entry[field] ? 'on' : '') + '">' + (entry[field] ? 'Sí' : 'No') + '</button></div>');
+      var btn = row.querySelector('button');
+      btn.onclick = function() {
+        entry[field] = !entry[field];
+        btn.classList.toggle('on', entry[field]);
+        btn.textContent = entry[field] ? 'Sí' : 'No';
+        saveLocal(); markUnsaved();
+      };
+      cuerpoRows.appendChild(row);
+    });
+
+    var ayuno = el('<div class="card"><h2>Ayuno</h2><div class="row"><span>Horas de ayuno</span><input type="number" id="horasAyuno" min="0" max="30" step="0.5" value="' + entry.horasAyuno + '"></div></div>');
+    app.appendChild(ayuno);
+    ayuno.querySelector('#horasAyuno').oninput = function() {
+      entry.horasAyuno = parseFloat(this.value) || 0;
+      saveLocal(); markUnsaved();
+    };
+
+    var dow = today.getDay();
+    var exCard = el('<div class="card"><h2>Ejercicio' + (EXERCISE_DAYS.indexOf(dow)===-1 ? ' — descanso hoy' : '') + '</h2><div id="exRows" class="ex-grid"></div></div>');
+    app.appendChild(exCard);
+    var exRows = exCard.querySelector('#exRows');
+    if (EXERCISE_DAYS.indexOf(dow) === -1) {
+      exRows.appendChild(el('<div style="color:var(--text-faint); font-size:13px; font-style:italic;">Domingo, martes y jueves toca.</div>'));
+    } else {
+      EXERCISES.forEach(function(ex) {
+        var row = el('<div class="ex-row"><span>' + ex.label + '</span><button class="toggle ' + (entry[ex.field] ? 'on' : '') + '">' + (entry[ex.field] ? 'Sí' : 'No') + '</button></div>');
+        var btn = row.querySelector('button');
+        btn.onclick = function() {
+          entry[ex.field] = !entry[ex.field];
+          btn.classList.toggle('on', entry[ex.field]);
+          btn.textContent = entry[ex.field] ? 'Sí' : 'No';
+          saveLocal(); markUnsaved();
+        };
+        exRows.appendChild(row);
+      });
+    }
+
+    var guitarra = el('<div class="card"><h2>Guitarra / teoría</h2>' +
+      '<div class="row"><span>Sesión de estudio</span><button class="toggle ' + (entry.guitarra ? 'on' : '') + '">' + (entry.guitarra ? 'Sí' : 'No') + '</button></div>' +
+      '<div class="row"><span>Minutos</span><input type="number" id="guitarraMinutos" min="0" max="300" step="5" value="' + entry.guitarraMinutos + '"></div></div>');
+    app.appendChild(guitarra);
+    var gBtn = guitarra.querySelector('button');
+    gBtn.onclick = function() {
+      entry.guitarra = !entry.guitarra;
+      gBtn.classList.toggle('on', entry.guitarra);
+      gBtn.textContent = entry.guitarra ? 'Sí' : 'No';
+      saveLocal(); markUnsaved();
+    };
+    guitarra.querySelector('#guitarraMinutos').oninput = function() {
+      entry.guitarraMinutos = parseInt(this.value) || 0;
+      saveLocal(); markUnsaved();
+    };
+
+    var alim = el('<div class="card"><h2>Alimentación</h2><textarea id="alimentacion" placeholder="Qué comiste hoy...">' + esc(entry.alimentacion) + '</textarea></div>');
+    app.appendChild(alim);
+    alim.querySelector('#alimentacion').oninput = function() {
+      entry.alimentacion = this.value;
+      saveLocal(); markUnsaved();
+    };
+
+    var goals = el('<div class="card"><h2>Mini objetivos</h2><div id="goalsList"></div><div class="add-row"><input type="text" id="newGoal" placeholder="Nuevo objetivo..."><button class="btn-plain" id="addGoalBtn">Añadir</button></div></div>');
+    app.appendChild(goals);
+    buildGoals(goals.querySelector('#goalsList'));
+    goals.querySelector('#addGoalBtn').onclick = function() { addGoal(goals); };
+    goals.querySelector('#newGoal').onkeydown = function(e) { if (e.key === 'Enter') addGoal(goals); };
+
+    var nota = el('<div class="card"><h2>Nota del día</h2><textarea id="notaTxt" style="min-height:50px;">' + esc(entry.nota) + '</textarea></div>');
+    app.appendChild(nota);
+    nota.querySelector('#notaTxt').oninput = function() {
+      entry.nota = this.value;
+      saveLocal(); markUnsaved();
+    };
+
+    var saveBlock = el('<div><button class="btn-accent" id="btnSaveCloud">Guardar en Google Sheets</button><div class="status-line" id="statusLine">' + (scriptUrl ? 'sin guardar en la nube todavía' : 'guardado solo en este navegador') + '</div></div>');
+    app.appendChild(saveBlock);
+    saveBlock.querySelector('#btnSaveCloud').onclick = saveToCloud;
+  }
+
+  function buildGoals(container) {
+    container.innerHTML = '';
+    if (!entry.objetivos.length) {
+      container.appendChild(el('<div style="color:var(--text-faint); font-size:13px; font-style:italic;">Sin objetivos hoy.</div>'));
+      return;
+    }
+    entry.objetivos.forEach(function(g, i) {
+      var row = el('<div class="goal-row"><button class="toggle ' + (g.done ? 'on' : '') + '" style="min-width:40px;">' + (g.done ? '✓' : '—') + '</button><input type="text" value="' + escAttr(g.text) + '"><button class="goal-del">×</button></div>');
+      var doneBtn = row.querySelector('button.toggle');
+      var textInput = row.querySelector('input');
+      var delBtn = row.querySelector('.goal-del');
+      doneBtn.onclick = function() {
+        g.done = !g.done;
+        doneBtn.classList.toggle('on', g.done);
+        doneBtn.textContent = g.done ? '✓' : '—';
+        saveLocal(); markUnsaved();
+      };
+      textInput.oninput = function() { g.text = this.value; saveLocal(); markUnsaved(); };
+      delBtn.onclick = function() {
+        entry.objetivos.splice(i, 1);
+        saveLocal(); buildGoals(container); markUnsaved();
+      };
+      container.appendChild(row);
+    });
+  }
+  function addGoal(goalsCard) {
+    var input = goalsCard.querySelector('#newGoal');
+    var text = input.value.trim();
+    if (!text) return;
+    entry.objetivos.push({ text: text, done: false });
+    input.value = '';
+    saveLocal();
+    buildGoals(goalsCard.querySelector('#goalsList'));
+    markUnsaved();
+  }
+
+  function markUnsaved() {
+    var s = document.getElementById('statusLine');
+    if (s) { s.textContent = 'cambios sin guardar en la nube'; s.className = 'status-line'; }
+  }
+
+  function saveToCloud() {
+    var s = document.getElementById('statusLine');
+    if (!scriptUrl) { s.textContent = 'primero pega la URL de Apps Script'; s.className = 'status-line error'; return; }
+    s.textContent = 'guardando…'; s.className = 'status-line';
+
+    var payload = {};
+    Object.keys(entry).forEach(function(k) {
+      payload[k] = (k === 'objetivos') ? JSON.stringify(entry.objetivos) : entry[k];
+    });
+    payload.fecha = todayKey;
+
+    fetch(scriptUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(json) {
+      if (json.ok) { s.textContent = 'guardado en Google Sheets ✓'; s.className = 'status-line saved'; }
+      else { s.textContent = 'error del servidor: ' + (json.error || 'desconocido'); s.className = 'status-line error'; }
+    })
+    .catch(function(err) {
+      s.textContent = 'no se pudo conectar: ' + err.message;
+      s.className = 'status-line error';
+    });
+  }
+
+  build();
+})();
+</script>
+</body>
+</html>
