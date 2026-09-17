@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Panel</title>
+<style>
+:root{
+  --bg0:#0a0a0c; --bg1:#111114; --bg2:#161619; --bg3:#1c1c20;
+  --line:#26262b; --line2:#33333a;
+  --tx0:#f3f2ee; --tx1:#a9a8a2; --tx2:#6f6e69;
+  --accent:#d85a30; --accent-dim:#3a2a22;
+  --teal:#1d9e75; --teal-dim:#0f3b2e;
+  --blue:#378add; --blue-dim:#12293f;
+  --amber:#ef9f27; --amber-dim:#3a2b0c;
+  --purple:#7f77dd; --purple-dim:#242157;
+  --gray:#5f5e5a;
+  --serif:'Georgia','Times New Roman',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;
+  --mono:'SF Mono','Courier New',monospace;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg0:#f6f5f1; --bg1:#ffffff; --bg2:#f0efe9; --bg3:#e9e8e1;
+    --line:#ddd; --line2:#c8c8c0;
+    --tx0:#1a1a18; --tx1:#5a5952; --tx2:#8a8980;
+    --accent-dim:#f5ddd2; --teal-dim:#d9f0e6; --blue-dim:#dbeafb; --amber-dim:#fbebce; --purple-dim:#e5e3fb;
+  }
+}
+:root[data-theme="light"]{
+  --bg0:#f6f5f1; --bg1:#ffffff; --bg2:#f0efe9; --bg3:#e9e8e1;
+  --line:#ddd; --line2:#c8c8c0;
+  --tx0:#1a1a18; --tx1:#5a5952; --tx2:#8a8980;
+  --accent-dim:#f5ddd2; --teal-dim:#d9f0e6; --blue-dim:#dbeafb; --amber-dim:#fbebce; --purple-dim:#e5e3fb;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{
+  background:var(--bg0); color:var(--tx0);
+  font-family:var(--sans); -webkit-font-smoothing:antialiased;
+  overflow-x:hidden; width:100%;
+}
+body{padding-bottom:4rem;}
+.wrap{max-width:100%; padding:0 20px;}
+
+/* ambient noise texture */
+.grain{
+  position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.025; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ===== HEADER ===== */
+header{
+  position:sticky; top:0; z-index:50; background:color-mix(in srgb, var(--bg0) 88%, transparent);
+  backdrop-filter:blur(20px) saturate(140%); -webkit-backdrop-filter:blur(20px) saturate(140%);
+  border-bottom:1px solid var(--line); padding:14px 20px;
+}
+.hd-row{display:flex; align-items:center; justify-content:space-between; gap:12px; max-width:100%;}
+.hd-title{font-family:var(--serif); font-size:19px; font-weight:400; letter-spacing:.2px; display:flex; align-items:baseline; gap:8px;}
+.hd-title .dim{color:var(--tx2); font-size:13px; font-family:var(--sans);}
+.hd-clock{font-family:var(--mono); font-size:11px; color:var(--tx2); letter-spacing:.5px; text-align:right;}
+.theme-btn{background:none;border:1px solid var(--line2); border-radius:20px; width:30px; height:30px; color:var(--tx1); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:13px;}
+.theme-btn:active{transform:scale(.92);}
+
+/* nav pills */
+nav{display:flex; gap:6px; margin-top:14px; overflow-x:auto; padding-bottom:2px; -ms-overflow-style:none; scrollbar-width:none;}
+nav::-webkit-scrollbar{display:none;}
+.pill{
+  flex:0 0 auto; padding:7px 14px; border-radius:20px; font-size:12.5px; font-weight:500; letter-spacing:.2px;
+  color:var(--tx1); background:var(--bg2); border:1px solid var(--line); cursor:pointer; white-space:nowrap;
+  transition:all .15s ease;
+}
+.pill.active{background:var(--tx0); color:var(--bg0); border-color:var(--tx0);}
+.pill:active{transform:scale(.96);}
+
+main{max-width:100%; padding:20px; position:relative; z-index:1;}
+.view{display:none; animation:fadeUp .35s ease both;}
+.view.active{display:block;}
+@keyframes fadeUp{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+/* ===== SHARED ===== */
+.section-label{
+  font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--tx2); font-weight:600;
+  margin:28px 0 12px; display:flex; align-items:center; gap:8px;
+}
+.section-label:first-child{margin-top:0;}
+.section-label::after{content:''; flex:1; height:1px; background:var(--line);}
+.card{background:var(--bg1); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:10px;}
+
+/* ===== HERO / OVERVIEW ===== */
+.hero{padding:6px 0 18px;}
+.hero-quote{
+  font-family:var(--serif); font-size:22px; line-height:1.5; color:var(--tx0); font-style:italic;
+  border-left:2px solid var(--accent); padding-left:16px; margin-bottom:4px;
+}
+.hero-sub{font-size:12px; color:var(--tx2); margin-top:8px; padding-left:18px;}
+
+.stat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:18px 0;}
+.stat{background:var(--bg1); border:1px solid var(--line); border-radius:14px; padding:14px 10px; text-align:center;}
+.stat-num{font-family:var(--serif); font-size:26px; font-weight:400; display:block; line-height:1;}
+.stat-label{font-size:10.5px; color:var(--tx2); margin-top:6px; letter-spacing:.3px;}
+
+.ring-row{display:flex; gap:14px; overflow-x:auto; padding:4px 2px 10px;}
+.ring-item{flex:0 0 auto; text-align:center; width:82px;}
+.ring-svg{width:64px; height:64px; margin:0 auto;}
+.ring-name{font-size:10.5px; color:var(--tx1); margin-top:6px; line-height:1.3;}
+.ring-pct{font-size:14px; font-weight:500; font-family:var(--mono);}
+
+.today-strip{display:flex; gap:8px; overflow-x:auto; padding-bottom:6px;}
+.today-chip{
+  flex:0 0 auto; display:flex; align-items:center; gap:6px; background:var(--bg2); border:1px solid var(--line);
+  border-radius:20px; padding:7px 12px 7px 9px; font-size:12px;
+}
+.today-dot{width:6px; height:6px; border-radius:50%; flex:0 0 auto;}
+
+/* ===== TIMELINE (metas) ===== */
+.tl-year{margin-bottom:6px;}
+.tl-year-head{
+  display:flex; align-items:center; justify-content:space-between; padding:14px 4px; cursor:pointer;
+}
+.tl-year-title{font-family:var(--serif); font-size:20px; display:flex; align-items:baseline; gap:10px;}
+.tl-year-badge{font-size:11px; font-family:var(--mono); color:var(--tx2); background:var(--bg2); padding:2px 8px; border-radius:10px;}
+.tl-chevron{transition:transform .25s ease; color:var(--tx2); font-size:12px;}
+.tl-year.open .tl-chevron{transform:rotate(90deg);}
+.tl-body{display:none; padding:2px 2px 18px;}
+.tl-year.open .tl-body{display:block;}
+
+.goal-row{
+  display:flex; align-items:flex-start; gap:12px; padding:11px 4px; border-bottom:1px solid var(--line);
+  cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent;
+}
+.goal-row:last-child{border-bottom:none;}
+.goal-check{
+  flex:0 0 auto; width:20px; height:20px; border-radius:6px; border:1.5px solid var(--line2); margin-top:1px;
+  display:flex; align-items:center; justify-content:center; font-size:12px; transition:all .15s ease;
+}
+.goal-check.done{background:var(--teal); border-color:var(--teal); color:#fff;}
+.goal-text{font-size:14.5px; line-height:1.4; flex:1;}
+.goal-text.done{color:var(--tx2); text-decoration:line-through; text-decoration-color:var(--line2);}
+.goal-cat{font-size:9.5px; text-transform:uppercase; letter-spacing:.5px; color:var(--tx2); margin-top:3px; display:block;}
+
+/* ===== ROUTINE GRID ===== */
+.week-tabs{display:flex; gap:5px; overflow-x:auto; padding-bottom:10px;}
+.wtab{
+  flex:0 0 auto; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:600; background:var(--bg2); border:1px solid var(--line); color:var(--tx1); cursor:pointer;
+}
+.wtab.active{background:var(--tx0); color:var(--bg0); border-color:var(--tx0);}
+
+.rt-group{margin-bottom:6px;}
+.rt-group-label{font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--tx2); margin:16px 4px 8px; font-weight:600;}
+.rt-item{
+  display:flex; align-items:center; gap:12px; padding:12px 4px; border-bottom:1px solid var(--line); cursor:pointer;
+}
+.rt-item:last-child{border-bottom:none;}
+.rt-check{
+  width:22px; height:22px; border-radius:50%; border:1.5px solid var(--line2); flex:0 0 auto;
+  display:flex; align-items:center; justify-content:center; font-size:12px; transition:all .15s ease;
+}
+.rt-check.done{color:#fff;}
+.rt-name{font-size:14.5px; flex:1;}
+.rt-name.off{color:var(--tx2);}
+.rt-streak{font-size:10.5px; font-family:var(--mono); color:var(--tx2);}
+
+/* ===== PRINCIPLES ===== */
+.principle-card{
+  background:var(--bg1); border:1px solid var(--line); border-radius:16px; padding:20px 18px; margin-bottom:10px;
+  position:relative; overflow:hidden;
+}
+.principle-quote{font-family:var(--serif); font-size:16px; line-height:1.6; font-style:italic; color:var(--tx0);}
+.principle-mark{position:absolute; top:8px; right:14px; font-family:var(--serif); font-size:44px; color:var(--line); line-height:1; user-select:none;}
+.values-wrap{display:flex; flex-wrap:wrap; gap:7px; margin-bottom:18px;}
+.value-tag{
+  font-size:12px; padding:6px 13px; border-radius:20px; background:var(--bg2); border:1px solid var(--line); color:var(--tx1);
+}
+
+/* ===== LATER / posponer ===== */
+.later-item{
+  display:flex; align-items:center; gap:10px; padding:12px 4px; border-bottom:1px solid var(--line); color:var(--tx2);
+}
+.later-item:last-child{border-bottom:none;}
+.later-dot{width:6px; height:6px; border-radius:50%; background:var(--tx2); flex:0 0 auto;}
+
+/* progress bar mini */
+.pbar{height:4px; border-radius:3px; background:var(--bg3); overflow:hidden; margin-top:8px;}
+.pbar-fill{height:100%; border-radius:3px; transition:width .5s ease;}
+
+.empty-hint{font-size:12px; color:var(--tx2); text-align:center; padding:20px 0;}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<header>
+  <div class="hd-row">
+    <div class="hd-title">Panel <span class="dim" id="hd-year">· 2026</span></div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div class="hd-clock" id="clock">—</div>
+      <button class="theme-btn" onclick="toggleTheme()" aria-label="Cambiar tema">◐</button>
+    </div>
+  </div>
+  <nav id="nav">
+    <div class="pill active" data-view="overview">Hoy</div>
+    <div class="pill" data-view="metas">Metas</div>
+    <div class="pill" data-view="rutina">Rutina</div>
+    <div class="pill" data-view="principios">Principios</div>
+  </nav>
+</header>
+
+<div id="sync-banner" style="display:none; background:var(--bg2); border-bottom:1px solid var(--line); padding:10px 20px; font-size:12px; color:var(--tx2);">
+  <div style="display:flex; gap:8px; align-items:center;">
+    <span style="flex:1;">Conecta tu hoja de registro (Apps Script) para guardar historial fuera del panel</span>
+    <button class="theme-btn" style="width:auto; padding:0 10px; border-radius:14px; font-size:11px;" onclick="document.getElementById('sync-input-row').style.display='flex'; document.getElementById('sync-banner').style.display='none';">Conectar</button>
+    <button class="theme-btn" style="width:auto; padding:0 10px; border-radius:14px; font-size:11px;" onclick="dismissSyncBanner()">Ahora no</button>
+  </div>
+</div>
+<div id="sync-input-row" style="display:none; gap:8px; padding:10px 20px; background:var(--bg2); border-bottom:1px solid var(--line);">
+  <input id="webhook-input" type="text" placeholder="https://script.google.com/macros/s/.../exec" style="flex:1; font-size:12px; padding:8px 10px; border-radius:8px; border:1px solid var(--line2); background:var(--bg1); color:var(--tx0);">
+  <button class="theme-btn" style="width:auto; padding:0 12px; border-radius:8px;" onclick="saveWebhook()">Guardar</button>
+</div>
+
+<main>
+
+<!-- ============ OVERVIEW ============ -->
+<div class="view active" id="view-overview">
+  <div class="hero">
+    <div class="hero-quote">Calidad, proceso y aprendizaje &gt; cantidad, resultado y reconocimiento.</div>
+    <div class="hero-sub" id="today-date">—</div>
+  </div>
+
+  <div class="stat-grid" id="year-stats"></div>
+
+  <div class="section-label">Anillos de hábito · hoy</div>
+  <div class="ring-row" id="ring-row"></div>
+
+  <div class="section-label">Constantes de hoy</div>
+  <div class="today-strip" id="today-strip"></div>
+
+  <div class="section-label">Próximo en la línea</div>
+  <div class="card" id="next-up"></div>
+
+  <div class="section-label">Check-in del día</div>
+  <div class="card" id="checkin-card" style="border-left:2px solid var(--amber);"></div>
+
+  <div class="section-label">Máxima de hoy</div>
+  <div class="principle-card" id="daily-principle" style="margin-bottom:0;"><span class="principle-mark">"</span><div class="principle-quote" id="daily-principle-text"></div></div>
+</div>
+
+<!-- ============ METAS ============ -->
+<div class="view" id="view-metas">
+  <div class="section-label">Progreso general</div>
+  <div class="card" id="metas-progress"></div>
+  <div id="tl-container"></div>
+</div>
+
+<!-- ============ RUTINA ============ -->
+<div class="view" id="view-rutina">
+  <div class="section-label">Regla base</div>
+  <div class="card" style="font-size:13px; color:var(--tx1); line-height:1.6;">
+    Periodo de 5 semanas, seguido de una semana completa de descanso. Postura firme. Sin pantallas 1h antes de dormir / 30min después de despertar. Dormir 8h.
+  </div>
+  <div class="section-label">Día</div>
+  <div class="week-tabs" id="week-tabs"></div>
+  <div id="routine-body"></div>
+</div>
+
+<!-- ============ PRINCIPIOS ============ -->
+<div class="view" id="view-principios">
+  <div class="section-label">Cualidades a cultivar</div>
+  <div class="values-wrap" id="values-wrap"></div>
+  <div class="section-label">Máximas</div>
+  <div id="principles-list"></div>
+  <div class="section-label">En pausa por elección</div>
+  <div class="card" style="padding:4px 16px;" id="later-list"></div>
+</div>
+
+</main>
+
+<script>
+/* ============ STORAGE SHIM (localStorage, para hosting fuera de claude.ai) ============ */
+window.storage = {
+  async get(key){
+    const v = localStorage.getItem('panelapp:'+key);
+    return v === null ? null : { key, value: v };
+  },
+  async set(key, value){
+    localStorage.setItem('panelapp:'+key, value);
+    return { key, value };
+  }
+};
+
+/* ============ DATA ============ */
+const DAYS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const DAY_SHORT = ['D','L','M','X','J','V','S'];
+
+const GOALS = {
+  "2026": [
+    {id:'g26-1', text:"Struttin' Jazz Lab", cat:'académico'},
+    {id:'g26-2', text:'Publicar álbum', cat:'formación'},
+    {id:'g26-3', text:'Iniciar método Meu Amor Records', cat:'profesional'},
+    {id:'g26-4', text:'Responsabilidad y saldar deudas', cat:'personal'},
+    {id:'g26-5', text:'Certificación comprensión lectora inglés', cat:'académico', done:true},
+    {id:'g26-6', text:'Salud dental', cat:'salud'},
+  ],
+  "2027": [
+    {id:'g27-1', text:'Posgrado en cognición musical', cat:'académico'},
+    {id:'g27-2', text:'Audióloga · revisión general', cat:'salud'},
+    {id:'g27-3', text:'Lanzar Meu Amor Records', cat:'profesional'},
+    {id:'g27-4', text:'Presentar álbum en vivo', cat:'formación'},
+  ],
+  "2028+": [
+    {id:'g28-1', text:'Segundo viaje mediterráneo — Portugal · Barcelona · Siracusa · Costa Azul · Zürich · Grecia · Rumania', cat:'personal'},
+    {id:'g28-2', text:'Inversión, ahorro, seguro médico y salud fiscal', cat:'personal'},
+    {id:'g28-3', text:'Ser padre a los 33', cat:'personal'},
+  ],
+};
+
+const QUARTERS = {
+  "Académico 2026": [
+    {id:'a-1', text:'Jazz Song Book 3 — Struttin\u2019 Jazz Lab', done:true},
+    {id:'a-2', text:'Publicar ensayo sobre industria musical'},
+    {id:'a-3', text:'Definir protocolo de investigación para posgrado 2027'},
+    {id:'a-4', text:'Constancia de comprensión lectora en inglés — ENALLT', done:true},
+  ],
+  "Profesional 2026": [
+    {id:'p-1', text:'Iniciar método de negocio de edición y mezcla'},
+  ],
+  "Formación personal 2026": [
+    {id:'f-1', text:'Publicar álbum'},
+    {id:'f-2', text:'Construir una flauta'},
+    {id:'f-3', text:'Aprender a cocinar'},
+  ],
+  "Salud y bienestar 2026": [
+    {id:'s-1', text:'Entrenamiento físico sostenido'},
+    {id:'s-2', text:'Chequeo anual de salud'},
+    {id:'s-3', text:'Salud dental'},
+  ],
+  "Enero — Abril": [
+    {id:'q1-1', text:'Jazz Song Book 3 — Struttin\u2019 Jazz Lab', done:true},
+    {id:'q1-2', text:'Planear Meu Amor Records', done:true},
+    {id:'q1-3', text:'Trabajar con mi padre', done:true},
+    {id:'q1-4', text:'Composición del álbum', done:true},
+    {id:'q1-5', text:'Publicar ensayo del manifiesto de música'},
+    {id:'q1-6', text:'1 jam al mes'},
+  ],
+  "Mayo — Agosto": [
+    {id:'q2-1', text:'Publicar ensayo del manifiesto de música'},
+    {id:'q2-2', text:'Constancia de comprensión lectora — ENALLT', done:true},
+    {id:'q2-3', text:'Postproducción del álbum', done:true},
+    {id:'q2-4', text:'Chequeo anual de salud'},
+    {id:'q2-5', text:'Grabación del álbum', done:true},
+    {id:'q2-6', text:'Puente de verano a Cancún con mi primo'},
+    {id:'q2-7', text:'1 jam al mes'},
+  ],
+  "Septiembre — Diciembre": [
+    {id:'q3-1', text:'Módulo I Armonía', done:true},
+    {id:'q3-2', text:'Publicar álbum'},
+    {id:'q3-3', text:'Construir flauta'},
+    {id:'q3-4', text:'Definir método de restauración de audio'},
+    {id:'q3-5', text:'Poner en marcha próximo viaje internacional'},
+    {id:'q3-6', text:'Definir protocolo de investigación para posgrado 2027'},
+    {id:'q3-7', text:'1 jam al mes'},
+  ],
+};
+
+const MONTHLY = {
+  "Marzo": [
+    {id:'m3-1', text:'Ir con mi hermano al pool', done:true},
+    {id:'m3-2', text:'Escribirle a Julián', done:true},
+    {id:'m3-3', text:'Escribir a NoFM', done:true},
+    {id:'m3-4', text:'Terminar segundo cerebro de conocimientos en NotebookLM', done:true},
+    {id:'m3-5', text:'Mezclar canción de jam o ensamble', done:true},
+    {id:'m3-6', text:'Crear canal Meu Amor Records (MAR)'},
+  ],
+  "Septiembre": [
+    {id:'s9-1', text:'Terminar mezcla y máster del álbum', done:true},
+    {id:'s9-2', text:'Chequeo anual de salud'},
+    {id:'s9-3', text:'Publicar manifiesto de música'},
+  ],
+};
+
+// Pendientes sin fecha fija — lista abierta, se puede añadir/quitar desde el panel
+const PENDIENTES_BASE = [
+  {id:'pd-1', text:'Comprar plantillas de pie'},
+  {id:'pd-2', text:'Ir al dentista'},
+  {id:'pd-3', text:'Registrar canciones en INDAUTOR'},
+];
+let PENDIENTES = [...PENDIENTES_BASE];
+
+// weekly routine — checkboxes and text carrying explicit state from the notes
+const ROUTINE = {
+  reglas: [
+    {id:'r-agua', name:'Tomar agua', state:{0:false,1:null,2:null,3:null,4:null,5:null,6:null}},
+    {id:'r-redes', name:'No exceder límites de redes sociales', state:{0:true,1:null,2:null,3:null,4:null,5:null,6:null}},
+    {id:'r-cel', name:'No usar celular al comer / al ir al baño', state:{0:true,1:null,2:null,3:null,4:null,5:null,6:null}},
+  ],
+  habitos: [
+    {id:'h-michis', name:'Michis', state:{0:false,1:'—',2:'—',3:'—',4:'—',5:'—',6:'—'}},
+    {id:'h-guitarra', name:'Guitarra', state:{0:'—',1:true,2:true,3:true,4:true,5:true,6:'—'}},
+    {id:'h-meditacion', name:'Meditación', state:{0:null,1:null,2:null,3:null,4:null,5:null,6:null}},
+    {id:'h-ejercicio', name:'Ejercicio', state:{0:true,1:'—',2:true,3:'—',4:true,5:'—',6:'—'}},
+    {id:'h-limpieza', name:'Limpieza / lavar ropa', state:{0:false,1:'—',2:'—',3:'—',4:'—',5:'—',6:null}},
+  ],
+  constantes: [
+    {id:'c-griego', name:'Διαβάζω (griego)'},
+    {id:'c-musica', name:'Escuchar música'},
+    {id:'c-idiomas', name:'Idiomas'},
+    {id:'c-escribir', name:'Escribir'},
+    {id:'c-leer', name:'Leer'},
+    {id:'c-chess', name:'Chess'},
+  ], // tiempo libre — opcional, sin obligación, no se manda al webhook
+};
+
+const SCHEDULE = {
+  0:['23:30–07:30 Dormir','07:30–15:00 Tiempo libre','15:00–16:00 Limpieza / lavar ropa','16:00–17:00 Ejercicio','17:00–22:00 Tiempo libre','22:00–23:30 Acostarse'],
+  1:['23:30–07:30 Dormir','07:30–08:30 Guitarra','08:30–09:00 Desayuno','09:00–10:00 Trayecto','10:00–19:00 Trabajo','19:00–20:00 Trayecto','20:00–22:00 Tiempo libre','22:00–23:30 Acostarse'],
+  2:['23:30–07:30 Dormir','07:30–08:30 Guitarra','08:30–09:00 Desayuno','09:00–10:00 Trayecto','10:00–19:00 Trabajo','19:00–20:00 Trayecto','20:00–21:00 Ejercicio','21:00–22:00 Tiempo libre','22:00–23:30 Acostarse'],
+  3:['23:30–07:30 Dormir','07:30–08:30 Guitarra','08:30–09:00 Desayuno','09:00–10:00 Trayecto','10:00–19:00 Trabajo','19:00–21:00 Ensamble','21:00–22:00 Trayecto','22:00–23:30 Acostarse'],
+  4:['23:30–07:30 Dormir','07:30–08:30 Guitarra','08:30–09:00 Desayuno','09:00–10:00 Trayecto','10:00–19:00 Trabajo','19:00–20:00 Trayecto','20:00–21:00 Ejercicio','21:00–22:00 Tiempo libre','22:00–23:30 Acostarse'],
+  5:['23:30–07:30 Dormir','07:30–08:30 Guitarra','08:30–09:00 Desayuno','09:00–10:00 Trayecto','10:00–19:00 Trabajo','19:00–22:00 Tiempo libre','22:00–23:30 Acostarse'],
+  6:['23:30–07:30 Dormir','07:30–22:00 Tiempo libre','22:00–23:30 Acostarse'],
+};
+
+const PRINCIPLES = [
+  "Is okay to lose to opponent. Must not lose to fear.",
+  "Don\u2019t worry. Don\u2019t compare. Don\u2019t expect too fast. Be kind to yourself.",
+  "Never put passion before principle. Even if win, you lose.",
+  "El riesgo de permanecer apretado en un capullo fue más doloroso que el riesgo de florecer.",
+  "El dolor no está en fracasar, sino en no intentarlo.",
+  "El error es el mejor maestro si estoy dispuesto a enfrentarlo.",
+  "El cambio y la pérdida son constantes; forzar la permanencia es peor a largo plazo.",
+  "El vacío en su interior es lo que hace útil al recipiente.",
+  "Calidad, proceso y aprendizaje > cantidad, resultado y reconocimiento.",
+  "Solo puedo controlar la calidad de mi conducta y de mi preparación.",
+  "La verdad no se encuentra en los resultados.",
+  "Si ni siquiera la naturaleza consigue mantener los extremos, un individuo menos.",
+  "La vida no nos trata como su hijo consentido: no por hacer las cosas bien, de manera justa, honesta y responsable obtendremos una recompensa justa, por más que la merezcamos.",
+  "El valor es más importante que el estatus.",
+  "El egoísmo, la duda sobre uno mismo y preservar el pasado a costa del futuro llevan a la negligencia e impiden el crecimiento, la libertad y alcanzar el potencial.",
+  "Es prioritario actuar con justicia por encima de lo fácil, placentero o conveniente. Preferir la inocencia, la justicia, la transparencia y la integridad antes que el deseo de utilidad.",
+];
+
+const VALUES = ['Responsabilidad','Integridad','Balance','Humildad','Serenidad','Simplicidad','Autocompasión','Conocimiento','Paciencia','Empatía'];
+
+const LATER = ['Estudiar ajedrez','Estudiar italiano'];
+
+/* ============ STORAGE ============ */
+let STATE = {};
+let WEBHOOK_URL = '';
+
+async function loadState(){
+  try{
+    const r = await window.storage.get('panel-state');
+    STATE = r ? JSON.parse(r.value) : {};
+  }catch(e){ STATE = {}; }
+  try{
+    const w = await window.storage.get('panel-webhook');
+    WEBHOOK_URL = w ? w.value : '';
+  }catch(e){ WEBHOOK_URL = ''; }
+  if(!WEBHOOK_URL){
+    document.getElementById('sync-banner').style.display = 'block';
+  }
+}
+async function saveState(){
+  try{ await window.storage.set('panel-state', JSON.stringify(STATE)); }catch(e){}
+}
+function isDone(id, fallback){
+  if (STATE[id] !== undefined) return STATE[id];
+  return !!fallback;
+}
+function todayISO(){
+  const n = new Date();
+  return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+}
+async function toggle(id, fallback, meta){
+  const cur = isDone(id, fallback);
+  const next = !cur;
+  STATE[id] = next;
+  await saveState();
+  // registro histórico local por fecha (siempre, aunque no haya webhook)
+  if(meta){
+    const hkey = 'hist:'+todayISO();
+    let hist = {};
+    try{ const r = await window.storage.get(hkey); hist = r ? JSON.parse(r.value) : {}; }catch(e){}
+    hist[id] = { name: meta.name, category: meta.category, done: next, ts: Date.now() };
+    try{ await window.storage.set(hkey, JSON.stringify(hist)); }catch(e){}
+    sendToWebhook(id, meta, next);
+  }
+}
+function sendToWebhook(id, meta, done){
+  if(!WEBHOOK_URL){
+    showToast('No hay hoja conectada — solo se guardó en el panel', 'warn');
+    return;
+  }
+  const now = new Date();
+  const payload = {
+    date: todayISO(),
+    dayName: DAYS[now.getDay()],
+    category: meta.category || '',
+    itemId: id,
+    itemName: meta.name || '',
+    done: done,
+    ts: now.getTime()
+  };
+  fetch(WEBHOOK_URL, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  }).then(r=>{
+    if(r.ok) showToast('Guardado en tu hoja', 'ok');
+    else showToast('La hoja respondió con error ('+r.status+')', 'error');
+  }).catch((err)=>{
+    showToast('No se pudo conectar con la hoja', 'error');
+  });
+}
+let toastTimer = null;
+function showToast(msg, kind){
+  let el = document.getElementById('toast');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'toast';
+    el.style.position = 'fixed';
+    el.style.bottom = '20px';
+    el.style.left = '50%';
+    el.style.transform = 'translateX(-50%)';
+    el.style.padding = '9px 16px';
+    el.style.borderRadius = '20px';
+    el.style.fontSize = '12.5px';
+    el.style.zIndex = '999';
+    el.style.transition = 'opacity .2s ease';
+    el.style.border = '1px solid var(--line)';
+    document.body.appendChild(el);
+  }
+  const colors = {
+    ok: {bg:'var(--teal-dim)', tx:'var(--teal)'},
+    error: {bg:'var(--accent-dim)', tx:'var(--accent)'},
+    warn: {bg:'var(--amber-dim)', tx:'var(--amber)'}
+  };
+  const c = colors[kind] || colors.ok;
+  el.style.background = c.bg;
+  el.style.color = c.tx;
+  el.textContent = msg;
+  el.style.opacity = '1';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ el.style.opacity = '0'; }, 3200);
+}
+async function saveWebhook(){
+  const v = document.getElementById('webhook-input').value.trim();
+  if(!v) return;
+  WEBHOOK_URL = v;
+  try{ await window.storage.set('panel-webhook', v); }catch(e){}
+  document.getElementById('sync-input-row').style.display = 'none';
+}
+function dismissSyncBanner(){
+  document.getElementById('sync-banner').style.display = 'none';
+}
+
+/* ============ CLOCK ============ */
+function tickClock(){
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+  const dateStr = now.toLocaleDateString('es-MX',{weekday:'long', day:'numeric', month:'long'});
+  document.getElementById('today-date').textContent = dateStr.charAt(0).toUpperCase()+dateStr.slice(1);
+}
+
+/* ============ THEME ============ */
+function toggleTheme(){
+  const root = document.documentElement;
+  const cur = root.getAttribute('data-theme');
+  root.setAttribute('data-theme', cur === 'light' ? 'dark' : 'light');
+}
+
+/* ============ NAV ============ */
+document.getElementById('nav').addEventListener('click', (e)=>{
+  const pill = e.target.closest('.pill');
+  if(!pill) return;
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  pill.classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+pill.dataset.view).classList.add('active');
+});
+
+/* ============ RENDER: OVERVIEW ============ */
+function countDone(list, fallbackKey='done'){
+  let done=0; list.forEach(it=>{ if(isDone(it.id, it[fallbackKey])) done++; });
+  return {done, total:list.length};
+}
+function ringSVG(pct, color){
+  const r=26, c=2*Math.PI*r, off=c*(1-pct);
+  return `<svg class="ring-svg" viewBox="0 0 64 64">
+    <circle cx="32" cy="32" r="${r}" fill="none" stroke="var(--bg3)" stroke-width="6"/>
+    <circle cx="32" cy="32" r="${r}" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round"
+      stroke-dasharray="${c}" stroke-dashoffset="${off}" transform="rotate(-90 32 32)" style="transition:stroke-dashoffset .5s ease"/>
+    <text x="32" y="37" text-anchor="middle" font-size="13" font-family="var(--mono)" fill="var(--tx0)">${Math.round(pct*100)}</text>
+  </svg>`;
+}
+
+function renderOverview(){
+  const allGoals = [...GOALS["2026"]];
+  const g = countDone(allGoals);
+  const allQ = Object.values(QUARTERS).flat();
+  const q = countDone(allQ);
+
+  document.getElementById('year-stats').innerHTML = `
+    <div class="stat"><span class="stat-num">${g.done}<span style="color:var(--tx2); font-size:16px;">/${g.total}</span></span><div class="stat-label">metas 2026</div></div>
+    <div class="stat"><span class="stat-num">${q.done}<span style="color:var(--tx2); font-size:16px;">/${q.total}</span></span><div class="stat-label">avances año</div></div>
+    <div class="stat"><span class="stat-num">${new Date().getDate()<10?'0':''}${new Date().getDate()}</span><div class="stat-label">día del mes</div></div>
+  `;
+
+  const now = new Date();
+  const dow = now.getDay();
+  const habitsToday = ROUTINE.habitos.filter(h=>h.state[dow] !== '—' && h.state[dow] !== undefined);
+  const reglasToday = ROUTINE.reglas;
+
+  const ringData = [
+    {name:'Reglas del día', color:'var(--accent)', list: reglasToday},
+    {name:'Deberes de hoy', color:'var(--teal)', list: habitsToday},
+    {name:'Metas 2026', color:'var(--blue)', pct: g.total? g.done/g.total : 0},
+  ];
+  let ringHtml = '';
+  ringData.forEach(rd=>{
+    let pct;
+    if(rd.pct !== undefined) pct = rd.pct;
+    else{
+      let done=0, total=rd.list.length;
+      rd.list.forEach(it=>{
+        const key = it.id+'-'+dow;
+        const fallback = typeof it.state[dow] === 'boolean' ? it.state[dow] : false;
+        if(isDone(key, fallback)) done++;
+      });
+      pct = total? done/total : 0;
+    }
+    ringHtml += `<div class="ring-item">${ringSVG(pct, rd.color)}<div class="ring-name">${rd.name}</div></div>`;
+  });
+  document.getElementById('ring-row').innerHTML = ringHtml;
+
+  let stripHtml = '';
+  ROUTINE.constantes.forEach(c=>{
+    stripHtml += `<div class="today-chip"><span class="today-dot" style="background:var(--purple)"></span>${c.name}</div>`;
+  });
+  document.getElementById('today-strip').innerHTML = stripHtml;
+
+  const nextGoal = allGoals.find(g=> !isDone(g.id, g.done));
+  document.getElementById('next-up').innerHTML = nextGoal
+    ? `<div style="font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--tx2); margin-bottom:6px;">${nextGoal.cat}</div><div style="font-size:15px;">${nextGoal.text}</div>`
+    : `<div class="empty-hint">Todas las metas de 2026 completadas</div>`;
+}
+
+/* ============ RENDER: METAS ============ */
+function renderMetaProgress(){
+  const all = Object.values(GOALS).flat();
+  const done = all.filter(g=>isDone(g.id,g.done)).length;
+  const pct = Math.round(done/all.length*100);
+  document.getElementById('metas-progress').innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+      <span style="font-family:var(--serif); font-size:22px;">${pct}%</span>
+      <span style="font-size:12px; color:var(--tx2);">${done} de ${all.length} objetivos de vida</span>
+    </div>
+    <div class="pbar"><div class="pbar-fill" style="width:${pct}%; background:var(--accent);"></div></div>
+  `;
+}
+
+function goalRow(g){
+  const done = isDone(g.id, g.done);
+  return `<div class="goal-row" data-goal="${g.id}" data-fallback="${!!g.done}">
+    <div class="goal-check ${done?'done':''}">${done?'✓':''}</div>
+    <div>
+      <div class="goal-text ${done?'done':''}">${g.text}</div>
+      <span class="goal-cat">${g.cat}</span>
+    </div>
+  </div>`;
+}
+function subRow(item, containerKey){
+  const done = isDone(item.id, item.done);
+  return `<div class="goal-row" data-goal="${item.id}" data-fallback="${!!item.done}" style="padding-left:2px;">
+    <div class="goal-check ${done?'done':''}" style="width:18px;height:18px;">${done?'✓':''}</div>
+    <div class="goal-text ${done?'done':''}" style="font-size:14px;">${item.text}</div>
+  </div>`;
+}
+
+function renderTimeline(){
+  let html = '';
+  Object.entries(GOALS).forEach(([year, list], idx)=>{
+    const {done,total} = countDone(list);
+    html += `<div class="tl-year ${idx===0?'open':''}" data-year="${year}">
+      <div class="tl-year-head">
+        <div class="tl-year-title">${year} <span class="tl-year-badge">${done}/${total}</span></div>
+        <div class="tl-chevron">›</div>
+      </div>
+      <div class="tl-body">
+        ${list.map(goalRow).join('')}
+      </div>
+    </div>`;
+  });
+
+  html += `<div class="section-label">Desglose 2026 por área</div>`;
+  Object.entries(QUARTERS).forEach(([label, list])=>{
+    const {done,total} = countDone(list);
+    html += `<div class="card" style="padding:14px 16px;">
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+        <div style="font-size:13.5px; font-weight:500;">${label}</div>
+        <div style="font-size:11px; font-family:var(--mono); color:var(--tx2);">${done}/${total}</div>
+      </div>
+      ${list.map(it=>subRow(it)).join('')}
+    </div>`;
+  });
+
+  html += `<div class="section-label">Pendientes por mes</div>`;
+  Object.entries(MONTHLY).forEach(([label, list])=>{
+    const {done,total} = countDone(list);
+    html += `<div class="card" style="padding:14px 16px;">
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+        <div style="font-size:13.5px; font-weight:500;">${label}</div>
+        <div style="font-size:11px; font-family:var(--mono); color:var(--tx2);">${done}/${total}</div>
+      </div>
+      ${list.map(it=>subRow(it)).join('')}
+    </div>`;
+  });
+
+  html += `<div class="section-label">Pendientes sin fecha</div>`;
+  const {done:pdDone, total:pdTotal} = countDone(PENDIENTES);
+  html += `<div class="card" style="padding:14px 16px;">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+      <div style="font-size:13.5px; font-weight:500;">Por hacer</div>
+      <div style="font-size:11px; font-family:var(--mono); color:var(--tx2);">${pdDone}/${pdTotal}</div>
+    </div>
+    ${PENDIENTES.map(it=>pendienteRow(it)).join('') || '<div class="empty-hint">Sin pendientes</div>'}
+    <div style="display:flex; gap:8px; margin-top:10px;">
+      <input id="pendiente-input" type="text" placeholder="Añadir pendiente…" style="flex:1; font-size:13px; padding:8px 10px; border-radius:8px; border:1px solid var(--line2); background:var(--bg2); color:var(--tx0);">
+      <button class="theme-btn" style="width:auto; padding:0 14px; border-radius:8px;" onclick="addPendiente()">Añadir</button>
+    </div>
+  </div>`;
+
+  document.getElementById('tl-container').innerHTML = html;
+}
+
+function pendienteRow(item){
+  const done = isDone(item.id, item.done);
+  return `<div class="goal-row" data-goal="${item.id}" data-fallback="${!!item.done}" style="padding-left:2px; align-items:center;">
+    <div class="goal-check ${done?'done':''}" style="width:18px;height:18px;">${done?'✓':''}</div>
+    <div class="goal-text ${done?'done':''}" style="font-size:14px; flex:1;">${item.text}</div>
+    <div class="pendiente-del" data-pd-del="${item.id}" style="color:var(--tx2); font-size:14px; padding:2px 6px; cursor:pointer;">✕</div>
+  </div>`;
+}
+
+async function addPendiente(){
+  const input = document.getElementById('pendiente-input');
+  const text = input.value.trim();
+  if(!text) return;
+  const id = 'pd-custom-'+Date.now();
+  PENDIENTES.push({id, text});
+  await savePendientes();
+  input.value = '';
+  renderTimeline();
+}
+async function removePendiente(id){
+  PENDIENTES = PENDIENTES.filter(p=>p.id !== id);
+  await savePendientes();
+  renderTimeline();
+}
+async function savePendientes(){
+  try{ await window.storage.set('panel-pendientes', JSON.stringify(PENDIENTES)); }catch(e){}
+}
+async function loadPendientes(){
+  try{
+    const r = await window.storage.get('panel-pendientes');
+    PENDIENTES = r ? JSON.parse(r.value) : [...PENDIENTES_BASE];
+  }catch(e){ PENDIENTES = [...PENDIENTES_BASE]; }
+}
+
+document.getElementById('view-metas').addEventListener('click', async (e)=>{
+  const head = e.target.closest('.tl-year-head');
+  if(head){ head.parentElement.classList.toggle('open'); return; }
+  const delBtn = e.target.closest('[data-pd-del]');
+  if(delBtn){ await removePendiente(delBtn.dataset.pdDel); return; }
+  const row = e.target.closest('.goal-row');
+  if(row){
+    const id = row.dataset.goal;
+    const fallback = row.dataset.fallback === 'true';
+    const name = row.querySelector('.goal-text')?.textContent || '';
+    await toggle(id, fallback, {name, category:'meta'});
+    renderTimeline(); renderMetaProgress(); renderOverview(); renderCheckin();
+  }
+});
+document.getElementById('view-overview').addEventListener('click', async (e)=>{
+  // overview is read-mostly; no toggle targets currently
+});
+
+/* ============ RENDER: ROUTINE ============ */
+let activeDay = new Date().getDay();
+
+function renderWeekTabs(){
+  let html='';
+  DAY_SHORT.forEach((d,i)=>{
+    html += `<div class="wtab ${i===activeDay?'active':''}" data-day="${i}">${d}</div>`;
+  });
+  document.getElementById('week-tabs').innerHTML = html;
+}
+
+function routineRow(item, groupKey){
+  const raw = item.state ? item.state[activeDay] : undefined;
+  if(raw === '—') return '';
+  const key = item.id+'-'+activeDay;
+  const fallback = typeof raw === 'boolean' ? raw : false;
+  const done = isDone(key, fallback);
+  const color = groupKey==='reglas' ? 'var(--accent)' : 'var(--teal)';
+  return `<div class="rt-item" data-key="${key}" data-fallback="${fallback}">
+    <div class="rt-check ${done?'done':''}" style="border-color:${done?color:'var(--line2)'}; background:${done?color:'transparent'};">${done?'✓':''}</div>
+    <div class="rt-name ${done?'':'off'}">${item.name}</div>
+  </div>`;
+}
+function constanteRow(item){
+  const key = item.id+'-'+activeDay;
+  const done = isDone(key, false);
+  return `<div class="rt-item" data-key="${key}" data-fallback="false" data-optional="true">
+    <div class="rt-check ${done?'done':''}" style="border-color:${done?'var(--purple)':'var(--line2)'}; background:${done?'var(--purple)':'transparent'};">${done?'✓':''}</div>
+    <div class="rt-name ${done?'':'off'}">${item.name}</div>
+  </div>`;
+}
+
+function renderRoutineBody(){
+  const reglasHtml = ROUTINE.reglas.map(r=>routineRow(r,'reglas')).join('');
+  const habitosHtml = ROUTINE.habitos.map(h=>routineRow(h,'habitos')).join('');
+  const constHtml = ROUTINE.constantes.map(constanteRow).join('');
+  const sched = SCHEDULE[activeDay] || [];
+
+  document.getElementById('routine-body').innerHTML = `
+    <div class="rt-group">
+      <div class="rt-group-label">Reglas generales</div>
+      ${reglasHtml}
+    </div>
+    <div class="rt-group">
+      <div class="rt-group-label">Deberes de ${DAYS[activeDay]}</div>
+      ${habitosHtml || '<div class="empty-hint">Sin hábitos programados</div>'}
+    </div>
+    <div class="rt-group">
+      <div class="rt-group-label">Tiempo libre — sugerencias, sin obligación</div>
+      ${constHtml}
+    </div>
+    <div class="section-label">Horario</div>
+    <div class="card" style="padding:6px 16px;">
+      ${sched.map(s=>`<div style="padding:9px 0; border-bottom:1px solid var(--line); font-size:13px; color:var(--tx1); font-family:var(--mono);">${s}</div>`).join('')}
+    </div>
+  `;
+}
+
+document.getElementById('week-tabs').addEventListener('click', (e)=>{
+  const tab = e.target.closest('.wtab');
+  if(!tab) return;
+  activeDay = parseInt(tab.dataset.day);
+  renderWeekTabs(); renderRoutineBody();
+});
+document.getElementById('routine-body').addEventListener('click', async (e)=>{
+  const item = e.target.closest('.rt-item');
+  if(!item) return;
+  const key = item.dataset.key;
+  const fallback = item.dataset.fallback === 'true';
+  const isOptional = item.dataset.optional === 'true';
+  const name = item.querySelector('.rt-name')?.textContent || '';
+  const group = item.closest('.rt-group')?.querySelector('.rt-group-label')?.textContent || 'rutina';
+  await toggle(key, fallback, isOptional ? null : {name, category:group});
+  renderRoutineBody(); renderOverview(); renderCheckin();
+});
+
+/* ============ RENDER: PRINCIPLES ============ */
+function renderPrinciples(){
+  document.getElementById('values-wrap').innerHTML = VALUES.map(v=>`<span class="value-tag">${v}</span>`).join('');
+  document.getElementById('principles-list').innerHTML = PRINCIPLES.map(p=>`
+    <div class="principle-card"><span class="principle-mark">"</span><div class="principle-quote">${p}</div></div>
+  `).join('');
+  document.getElementById('later-list').innerHTML = LATER.map(l=>`
+    <div class="later-item"><span class="later-dot"></span>${l}</div>
+  `).join('');
+}
+
+/* ============ CHECK-IN DIARIO ============ */
+function dayOfYear(){
+  const now = new Date();
+  const start = new Date(now.getFullYear(),0,0);
+  return Math.floor((now - start) / 86400000);
+}
+function renderDailyPrinciple(){
+  const idx = dayOfYear() % PRINCIPLES.length;
+  document.getElementById('daily-principle-text').textContent = PRINCIPLES[idx];
+}
+function renderCheckin(){
+  const now = new Date();
+  const dow = now.getDay();
+
+  const reglasLeft = ROUTINE.reglas.filter(r=>{
+    const key=r.id+'-'+dow;
+    return !isDone(key, typeof r.state[dow]==='boolean'?r.state[dow]:false);
+  });
+  const habitosLeft = ROUTINE.habitos.filter(h=>{
+    if(h.state[dow]==='—') return false;
+    const key=h.id+'-'+dow;
+    return !isDone(key, typeof h.state[dow]==='boolean'?h.state[dow]:false);
+  });
+
+  // meta del mes más cercana sin completar (busca en QUARTERS por trimestre actual)
+  const month = now.getMonth();
+  let quarterKey = 'Enero — Abril';
+  if(month>=4 && month<=7) quarterKey='Mayo — Agosto';
+  if(month>=8) quarterKey='Septiembre — Diciembre';
+  const quarterList = QUARTERS[quarterKey] || [];
+  const quarterLeft = quarterList.filter(it=>!isDone(it.id, it.done));
+
+  let html = '';
+  if(reglasLeft.length || habitosLeft.length){
+    html += `<div style="font-size:12px; color:var(--tx2); margin-bottom:8px;">Para hoy</div>`;
+    [...reglasLeft, ...habitosLeft].forEach(it=>{
+      html += `<div style="font-size:13.5px; padding:4px 0;">· ${it.name}</div>`;
+    });
+  } else {
+    html += `<div style="font-size:13.5px; color:var(--teal);">Rutina de hoy completa</div>`;
+  }
+  if(quarterLeft.length){
+    html += `<div style="font-size:12px; color:var(--tx2); margin:14px 0 6px;">Pendiente del trimestre — ${quarterKey}</div>`;
+    html += `<div style="font-size:13.5px;">${quarterLeft.length} objetivo${quarterLeft.length>1?'s':''} sin cerrar</div>`;
+  }
+  document.getElementById('checkin-card').innerHTML = html;
+}
+
+/* ============ INIT ============ */
+async function init(){
+  await loadState();
+  await loadPendientes();
+  tickClock(); setInterval(tickClock, 30000);
+  renderOverview();
+  renderMetaProgress();
+  renderTimeline();
+  renderWeekTabs();
+  renderRoutineBody();
+  renderPrinciples();
+  renderCheckin();
+  renderDailyPrinciple();
+}
+init();
+</script>
+</body>
+</html>
