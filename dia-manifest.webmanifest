@@ -1,0 +1,15 @@
+{
+  "name": "Día",
+  "short_name": "Día",
+  "description": "Rutina, cuerpo, metas y principios en un solo lugar",
+  "start_url": "./dia.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f5f0",
+  "theme_color": "#f7f5f0",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "dia-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "dia-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
