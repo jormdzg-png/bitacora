@@ -171,6 +171,97 @@ input[type=text]{min-height:auto;}
 #sync-input-row{display:none; gap:8px; padding:12px 22px; background:var(--bg2); border-bottom:1px solid var(--line);}
 .btn-sm{background:var(--sage); color:#fff; border:none; border-radius:14px; padding:0 14px; height:32px; font-size:11.5px; cursor:pointer;}
 .btn-sm.ghost{background:none; border:1px solid var(--line2); color:var(--tx1);}
+
+/* ===== DINERO ===== */
+.money-hero{text-align:center; padding:24px 18px 20px;}
+.money-cap{font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--tx2); font-weight:600;}
+.money-big{font-family:var(--serif); font-size:50px; line-height:1.05; letter-spacing:-.5px; margin:10px 0 4px; transition:color .3s ease;}
+.money-sub{font-size:13px; color:var(--tx1); margin-top:13px; line-height:1.55;}
+.money-note{font-size:12px; color:var(--tx2); margin-top:10px; line-height:1.55;}
+.pay-chip{display:inline-block; margin-top:14px; font-size:11.5px; padding:6px 13px; border-radius:20px; background:var(--sky-dim); color:var(--sky); border:1px solid var(--line);}
+.edit-tope{cursor:pointer; color:var(--tx2); margin-left:4px;}
+.chip-row{display:flex; gap:6px; overflow-x:auto; padding:0 0 12px; -ms-overflow-style:none; scrollbar-width:none;}
+.chip-row::-webkit-scrollbar{display:none;}
+.cat-chip{flex:0 0 auto; padding:7px 14px; border-radius:20px; font-size:12px; background:var(--bg2); border:1px solid var(--line); color:var(--tx1); cursor:pointer; transition:all .2s ease; user-select:none;}
+.cat-chip.active{background:var(--sage); border-color:var(--sage); color:#fff;}
+.add-row{display:flex; gap:8px; align-items:center;}
+.amt-input{flex:0 0 108px; width:108px; background:var(--bg2); border:1px solid var(--line2); color:var(--tx0); font-size:16px; padding:11px 12px; border-radius:14px; font-family:var(--mono); min-width:0;}
+.note-input{flex:1 1 auto; min-width:0; width:auto;}
+.day-select{flex:0 0 auto; background:var(--bg2); border:1px solid var(--line2); color:var(--tx1); font-size:12.5px; padding:11px 8px; border-radius:14px; font-family:inherit;}
+.exp-row{display:flex; align-items:center; gap:11px; padding:12px 2px; border-bottom:1px solid var(--line);}
+.exp-row:last-child{border-bottom:none;}
+.exp-dot{width:8px; height:8px; border-radius:50%; flex:0 0 auto;}
+.exp-main{flex:1; min-width:0;}
+.exp-name{font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.exp-meta{font-size:11px; color:var(--tx2); margin-top:2px;}
+.exp-amt{font-family:var(--mono); font-size:14px;}
+.exp-del{color:var(--tx2); font-size:15px; padding:2px 6px; cursor:pointer;}
+.q-row{display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid var(--line); font-size:12.5px;}
+.q-row:last-child{border-bottom:none;}
+.q-row.cur{font-weight:600;}
+.q-label{flex:0 0 74px; color:var(--tx1);}
+.q-bar{flex:1;}
+.q-bar .pbar{margin-top:0;}
+.q-nums{flex:0 0 auto; font-family:var(--mono); font-size:11.5px; color:var(--tx2); text-align:right; min-width:92px;}
+.kd-row{display:flex; gap:12px; align-items:flex-start; padding:11px 0; border-bottom:1px solid var(--line);}
+.kd-row:last-child{border-bottom:none;}
+.kd-date{flex:0 0 52px; font-family:var(--mono); font-size:12px; color:var(--tx2); padding-top:1px;}
+.kd-text{font-size:13.5px; line-height:1.45; flex:1;}
+.kd-text.pay{color:var(--clay); font-weight:600;}
+/* --- Dinero 2: anillo, alertas animadas, insights --- */
+.ring-wrap{position:relative; width:212px; height:212px; margin:2px auto 0;}
+.ring-wrap svg{width:100%; height:100%; transform:rotate(-90deg); overflow:visible;}
+.ring-bg{fill:none; stroke:var(--line2); stroke-width:11; opacity:.55;}
+.ring-fg{fill:none; stroke:currentColor; stroke-width:11; stroke-linecap:round; transition:stroke-dashoffset 1.1s cubic-bezier(.22,1,.36,1), color .4s ease;}
+.ring-pace{fill:var(--bg0); stroke:var(--tx2); stroke-width:2;}
+.ring-center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;}
+.ring-center .money-big{font-size:40px; margin:0;}
+.ring-low .ring-fg{animation:ringGlow 2.4s ease-in-out infinite;}
+.ring-over .ring-fg{animation:ringGlow 1.4s ease-in-out infinite;}
+@keyframes ringGlow{0%,100%{filter:drop-shadow(0 0 0 transparent);} 50%{filter:drop-shadow(0 0 7px currentColor);}}
+.alert-ico{position:absolute; top:12px; right:14px; width:30px; height:30px; transform-origin:50% 12%;}
+.alert-ico svg{width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;}
+.alert-ico.low{color:var(--gold); animation:bellRing 4s ease-in-out infinite;}
+.alert-ico.over{color:var(--clay); animation:bellRing 2.2s ease-in-out infinite;}
+@keyframes bellRing{0%,55%,100%{transform:rotate(0);} 60%{transform:rotate(16deg);} 66%{transform:rotate(-13deg);} 72%{transform:rotate(10deg);} 78%{transform:rotate(-6deg);} 84%{transform:rotate(0);}}
+.pill.alert{position:relative;}
+.pill.alert::after{content:''; position:absolute; top:4px; right:6px; width:7px; height:7px; border-radius:50%; background:var(--gold); animation:dotPulse 1.8s ease-out infinite;}
+.pill.alert.over::after{background:var(--clay);}
+@keyframes dotPulse{0%{box-shadow:0 0 0 0 rgba(200,160,60,.55);} 100%{box-shadow:0 0 0 8px rgba(200,160,60,0);}}
+.hoy-bell{display:inline-block; width:17px; height:17px; vertical-align:-3px; margin-right:6px; transform-origin:50% 12%;}
+.hoy-bell svg{width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round;}
+.hoy-bell.low{color:var(--gold); animation:bellRing 4s ease-in-out infinite;}
+.hoy-bell.over{color:var(--clay); animation:bellRing 2.2s ease-in-out infinite;}
+.sync-chip{display:inline-block; margin-top:8px; font-size:11px; color:var(--tx2);}
+.sync-chip.ok{color:var(--sage);}
+.ins-line{font-size:13px; color:var(--tx1); line-height:1.55;}
+.week-bars{display:flex; align-items:flex-end; gap:8px; height:62px; margin:14px 0 4px;}
+.wb{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:5px;}
+.wb i{display:block; width:100%; max-width:26px; border-radius:7px 7px 3px 3px; background:var(--line2); min-height:3px; transition:height .8s cubic-bezier(.22,1,.36,1);}
+.wb.today i{background:var(--sage);}
+.wb span{font-size:10px; color:var(--tx2);}
+.cat-bar{display:flex; height:10px; border-radius:6px; overflow:hidden; margin:16px 0 10px; background:var(--line);}
+.cat-bar div{height:100%; transition:width .8s cubic-bezier(.22,1,.36,1);}
+.cat-legend{display:flex; flex-wrap:wrap; gap:6px 14px; font-size:11.5px; color:var(--tx1);}
+.cat-legend i{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px;}
+.exp-row{animation:fadeUp .35s ease both;}
+@media (prefers-reduced-motion:reduce){
+  .ring-fg,.alert-ico,.hoy-bell,.pill.alert::after,.ring-low .ring-fg,.ring-over .ring-fg,.wb i,.cat-bar div,.exp-row{animation:none !important; transition:none !important;}
+}
+/* --- Agenda de días clave --- */
+.ag-card{border-color:var(--gold); background:linear-gradient(180deg,var(--gold-dim),var(--bg1) 85%); animation:fadeUp .4s ease both;}
+.ag-title{font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--gold); font-weight:600; margin-bottom:6px;}
+.ag-row{display:flex; align-items:center; gap:12px; padding:9px 0; cursor:pointer; user-select:none;}
+.ag-chk{flex:0 0 24px; width:24px; height:24px; border-radius:50%; border:1.7px solid var(--gold); display:flex; align-items:center; justify-content:center; color:#fff; font-size:13px; transition:all .25s ease;}
+.ag-row.done .ag-chk{background:var(--sage); border-color:var(--sage);}
+.ag-row.done .ag-txt{text-decoration:line-through; opacity:.55;}
+.ag-row.info{cursor:default;}
+.ag-row.info .ag-chk{border-style:dotted; border-color:var(--tx2);}
+.ag-txt{flex:1; font-size:14px; line-height:1.4;}
+.ag-amt{font-family:var(--mono); font-size:13.5px; white-space:nowrap;}
+.ag-quote{font-size:12.5px; color:var(--tx1); line-height:1.55; margin-top:8px; padding-top:10px; border-top:1px solid var(--line); font-style:italic;}
+.ag-soon{font-size:12px; color:var(--tx2); margin-top:8px; line-height:1.6;}
+.ag-allgood{font-size:12.5px; color:var(--sage); line-height:1.5;}
 </style>
 </head>
 <body>
@@ -182,6 +273,7 @@ input[type=text]{min-height:auto;}
   </div>
   <nav id="nav">
     <div class="pill active" data-view="hoy">Hoy</div>
+    <div class="pill" data-view="dinero">Dinero</div>
     <div class="pill" data-view="cuerpo">Cuerpo</div>
     <div class="pill" data-view="metas">Metas</div>
     <div class="pill" data-view="rutina">Rutina</div>
@@ -213,11 +305,63 @@ input[type=text]{min-height:auto;}
   <div class="section-label">Anillos de hoy</div>
   <div class="ring-row" id="ring-row"></div>
 
+  <div id="agenda-hoy"></div>
+
+  <div class="section-label">Dinero</div>
+  <div class="card" id="dinero-hoy-card" style="cursor:pointer;" onclick="document.querySelector('.pill[data-view=dinero]').click()"></div>
+
   <div class="section-label">Tiempo libre sugerido</div>
   <div class="today-strip" id="today-strip"></div>
 
   <div class="section-label">Check-in del día</div>
   <div class="card" id="checkin-card" style="border-left:2px solid var(--gold);"></div>
+</div>
+
+<!-- ============ DINERO ============ -->
+<div class="view" id="view-dinero">
+  <div id="agenda-dinero"></div>
+  <div id="dinero-hero"></div>
+
+  <div class="section-label">Anotar gasto</div>
+  <div class="card">
+    <div class="chip-row" id="cat-row">
+      <div class="cat-chip active" data-cat="comida">Comida</div>
+      <div class="cat-chip" data-cat="super">Súper</div>
+      <div class="cat-chip" data-cat="gusto">Gusto</div>
+      <div class="cat-chip" data-cat="transporte">Transporte</div>
+      <div class="cat-chip" data-cat="otro">Otro</div>
+    </div>
+    <div class="add-row">
+      <input id="gasto-monto" class="amt-input" type="number" inputmode="decimal" min="0" step="0.01" placeholder="$ monto">
+      <input id="gasto-nota" class="note-input" type="text" placeholder="¿Qué fue? (tacos, súper…)" list="notas-list" autocomplete="off"><datalist id="notas-list"></datalist>
+      <select id="gasto-dia" class="day-select" aria-label="Día del gasto"><option value="0">Hoy</option><option value="1">Ayer</option></select>
+    </div>
+    <button class="btn-sm" style="width:100%; height:44px; font-size:13.5px; margin-top:12px;" onclick="addGasto()">Añadir</button>
+  </div>
+
+  <div class="section-label">Esta quincena</div>
+  <div class="card" style="padding:4px 16px;" id="dinero-list"></div>
+
+  <div class="section-label">Cómo vas</div>
+  <div class="card" id="dinero-insights"></div>
+
+  <div class="section-label">Próximas fechas</div>
+  <div class="card" style="padding:4px 16px;" id="dinero-fechas"></div>
+
+  <div class="section-label">Préstamos BBVA</div>
+  <div id="dinero-deuda"></div>
+
+  <div class="section-label">Todas las quincenas</div>
+  <div class="card" style="padding:6px 16px;" id="dinero-quincenas"></div>
+
+  <div class="section-label">Reglas</div>
+  <div class="card" style="font-size:13px; color:var(--tx1); line-height:1.75;">
+    · Todo lo personal cabe en el tope de la quincena. Dentro del tope no hay culpa.<br>
+    · Hasta el 23 de enero pagas con la tarjeta de crédito; desde el 24 de enero, con débito.<br>
+    · El dinero de Joart no se toca: se queda en la cuenta de ahorro.<br>
+    · Revisas tus números solo el 15 y el 30, cuando haces oficial tu quincena. El resto del mes, vives dentro de tu tope.<br>
+    · Si un mes viene flojo, bajas el abono extra a $500. Nada más se mueve.
+  </div>
 </div>
 
 <!-- ============ CUERPO ============ -->
@@ -515,6 +659,7 @@ async function saveWebhook(){
   WEBHOOK_URL = v;
   try{ await window.storage.set('webhook-url', v); }catch(e){}
   document.getElementById('sync-input-row').style.display = 'none';
+  if(typeof flushCola === 'function'){ flushCola(); renderDineroHero(); }
 }
 function dismissSyncBanner(){ document.getElementById('sync-banner').style.display = 'none'; }
 
@@ -544,7 +689,7 @@ function showToast(msg, kind){
     el.id = 'toast';
     Object.assign(el.style, {position:'fixed', bottom:'20px', left:'50%', transform:'translateX(-50%)',
       padding:'10px 18px', borderRadius:'22px', fontSize:'12.5px', zIndex:'999',
-      transition:'opacity .25s ease', border:'1px solid var(--line)'});
+      transition:'opacity .25s ease', border:'1px solid var(--line)', pointerEvents:'none'});
     document.body.appendChild(el);
   }
   const colors = { ok:{bg:'var(--sage-dim)', tx:'var(--sage)'}, error:{bg:'var(--clay-dim)', tx:'var(--clay)'}, warn:{bg:'var(--gold-dim)', tx:'var(--gold)'} };
@@ -936,10 +1081,420 @@ function renderPrinciples(){
   ).join('');
 }
 
+/* ============ DINERO · plan financiero por quincenas ============ */
+// Tope de gasto personal por quincena (comida, súper, gustos, lo que surja). Los fijos, préstamos y dentista van aparte.
+const PLAN_Q = [
+  {id:'q01', label:'16–30 nov', start:'2026-11-16', end:'2026-11-30', tope:1500},
+  {id:'q02', label:'1–15 dic',  start:'2026-12-01', end:'2026-12-15', tope:2000},
+  {id:'q03', label:'16–31 dic', start:'2026-12-16', end:'2026-12-31', tope:2300},
+  {id:'q04', label:'1–15 ene',  start:'2027-01-01', end:'2027-01-15', tope:2750},
+  {id:'q05', label:'16–31 ene', start:'2027-01-16', end:'2027-01-31', tope:2750},
+  {id:'q06', label:'1–15 feb',  start:'2027-02-01', end:'2027-02-15', tope:2750},
+  {id:'q07', label:'16–28 feb', start:'2027-02-16', end:'2027-02-28', tope:2750},
+  {id:'q08', label:'1–15 mar',  start:'2027-03-01', end:'2027-03-15', tope:2750},
+  {id:'q09', label:'16–31 mar', start:'2027-03-16', end:'2027-03-31', tope:2750},
+  {id:'q10', label:'1–15 abr',  start:'2027-04-01', end:'2027-04-15', tope:2750},
+  {id:'q11', label:'16–30 abr', start:'2027-04-16', end:'2027-04-30', tope:2750},
+  {id:'q12', label:'1–15 may',  start:'2027-05-01', end:'2027-05-15', tope:2750},
+  {id:'q13', label:'16–31 may', start:'2027-05-16', end:'2027-05-31', tope:2750},
+  {id:'q14', label:'1–15 jun',  start:'2027-06-01', end:'2027-06-15', tope:2750},
+  {id:'q15', label:'16–30 jun', start:'2027-06-16', end:'2027-06-30', tope:2750},
+];
+// Saldo estimado de los 2 préstamos BBVA después de cada pago (con $555 de mínimo + $1,700 de abono extra desde el 30 ene)
+const DEBT_START = 23133.96;
+const DEBT_SCHEDULE = [
+  ['2026-11-30',22959.22],['2026-12-15',22781.61],['2026-12-30',22601.08],['2027-01-15',22417.59],
+  ['2027-01-30',20531.08],['2027-02-15',18613.56],['2027-02-28',16664.52],['2027-03-15',14683.44],
+  ['2027-03-30',12669.80],['2027-04-15',10623.06],['2027-04-30',8542.68],['2027-05-15',6428.10],
+  ['2027-05-30',4278.76],['2027-06-15',2094.09],['2027-06-30',0],
+];
+const KEY_DATES = [
+  {date:'2026-11-30', text:'Nómina de Joart $9,500 (Sergio + Daniela). Préstamos −$555.'},
+  {date:'2026-12-15', text:'Haces oficial $10,000. Préstamos −$555 y Atrato −$489.'},
+  {date:'2026-12-20', text:'Haces oficial tu quincena del 30 dic (adelantada).'},
+  {date:'2026-12-23', text:'PAGAR LA TARJETA COMPLETA (~$12,100).', pay:true},
+  {date:'2026-12-30', text:'Préstamos −$555.'},
+  {date:'2027-01-15', text:'Haces oficial $10,000. Último Atrato. Primer pago del dentista ($2,150).'},
+  {date:'2027-01-23', text:'PAGAR LA TARJETA COMPLETA (~$6,800).', pay:true},
+  {date:'2027-01-24', text:'Tu gasto personal pasa a tarjeta de débito.'},
+  {date:'2027-01-30', text:'Empieza el abono extra de $1,700 por quincena.'},
+  {date:'2027-06-30', text:'Último pago de los préstamos BBVA.'},
+];
+const GASTO_CATS = {comida:['Comida','var(--sage)'], super:['Súper','var(--sky)'], gusto:['Gusto','var(--lav)'], transporte:['Transporte','var(--gold)'], otro:['Otro','var(--clay)']};
+const BELL_SVG = '<svg viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0-6 6v3.5L4.5 15v1h15v-1L18 12.5V9a6 6 0 0 0-6-6z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>';
+let COLA = [];            // eventos de gasto pendientes de enviar a la hoja
+let GASTOS = [];          // [{id, iso, ts, amount, cat, note}]
+let TOPES_OVERRIDE = {};  // { 'q05': 3000 } — si ajustas el tope de una quincena
+let selectedCat = 'comida';
+
+const money = n => '$' + Math.round(n).toLocaleString('es-MX');
+const money2 = n => '$' + n.toLocaleString('es-MX', {minimumFractionDigits:0, maximumFractionDigits:2});
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function isoToDate(iso){ const p = iso.split('-').map(Number); return new Date(p[0], p[1]-1, p[2]); }
+function daysBetween(aIso, bIso){ return Math.round((isoToDate(bIso) - isoToDate(aIso)) / 86400000); }
+function shortDate(iso){ const d = isoToDate(iso); return d.getDate()+' '+MONTHS[d.getMonth()].slice(0,3); }
+
+async function loadDinero(){
+  try{ const r = await window.storage.get('dinero-gastos'); GASTOS = r ? JSON.parse(r.value) : []; }catch(e){ GASTOS = []; }
+  try{ const r = await window.storage.get('dinero-topes'); TOPES_OVERRIDE = r ? JSON.parse(r.value) : {}; }catch(e){ TOPES_OVERRIDE = {}; }
+}
+async function saveDinero(){
+  try{
+    await window.storage.set('dinero-gastos', JSON.stringify(GASTOS));
+    await window.storage.set('dinero-topes', JSON.stringify(TOPES_OVERRIDE));
+  }catch(e){}
+}
+
+function currentQ(){
+  const t = todayISO();
+  if(t < PLAN_Q[0].start) return PLAN_Q[0];
+  return PLAN_Q.find(q => t >= q.start && t <= q.end) || PLAN_Q[PLAN_Q.length-1];
+}
+const topeOf = q => (TOPES_OVERRIDE[q.id] !== undefined ? TOPES_OVERRIDE[q.id] : q.tope);
+const spentIn = q => GASTOS.filter(g => g.iso >= q.start && g.iso <= q.end).reduce((s,g) => s + g.amount, 0);
+function daysLeft(q){
+  const t = todayISO();
+  if(t < q.start) return daysBetween(q.start, q.end) + 1;
+  if(t > q.end) return 0;
+  return daysBetween(t, q.end) + 1;
+}
+function moneyState(q){
+  const tope = topeOf(q), spent = spentIn(q), left = tope - spent;
+  const pct = tope ? spent / tope : 0;
+  const dl = Math.max(daysLeft(q), 1);
+  let level = 'ok', color = 'var(--sage)', msg = 'Vas bien. Lo que no gastes se va directo a tu colchón.';
+  if(left < 0){
+    level = 'over'; color = 'var(--clay)';
+    msg = 'Te pasaste por '+money(-left)+'. No pasa nada: baja un poco en la siguiente quincena y seguimos.';
+  } else if(pct >= 0.75){
+    level = 'low'; color = 'var(--gold)';
+    msg = 'Te queda poco: '+money(left)+' para '+dl+' día'+(dl>1?'s':'')+'. Con calma, tú puedes.';
+  }
+  return {tope, spent, left, pct, dl, level, color, msg};
+}
+
+let LAST_LEFT = null;
+function animateNumber(el, from, to){
+  const fmt = n => (n<0?'−':'') + money(Math.abs(n));
+  if(from === null || from === to || matchMedia('(prefers-reduced-motion: reduce)').matches){ el.textContent = fmt(to); return; }
+  const t0 = performance.now(), dur = 800;
+  (function step(t){
+    const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+    el.textContent = fmt(from + (to - from) * e);
+    if(k < 1) requestAnimationFrame(step);
+  })(t0);
+}
+function syncChipHTML(){
+  if(!WEBHOOK_URL) return '<div class="sync-chip">Sin hoja conectada · se guarda solo en este dispositivo</div>';
+  if(COLA.length) return '<div class="sync-chip">'+COLA.length+' por enviar a tu hoja…</div>';
+  return '<div class="sync-chip ok">Sincronizado con tu hoja ✓</div>';
+}
+function renderDineroHero(){
+  const q = currentQ(), s = moneyState(q), t = todayISO();
+  const ended = t > PLAN_Q[PLAN_Q.length-1].end;
+  const pay = t < '2027-01-24' ? 'tarjeta de crédito' : 'tarjeta de débito';
+  const total = daysBetween(q.start, q.end) + 1;
+  const elapsed = Math.min(total, Math.max(0, daysBetween(q.start, t) + 1));
+  const R = 88, C = 2 * Math.PI * R, ang = elapsed / total * 2 * Math.PI;
+  const mx = (100 + R * Math.cos(ang)).toFixed(1), my = (100 + R * Math.sin(ang)).toFixed(1);
+  const perDay = s.left > 0 ? '≈ '+money(s.left / s.dl)+' por día · '+s.dl+' día'+(s.dl>1?'s':'')+'<br>' : '';
+  const bell = s.level === 'ok' ? '' : '<div class="alert-ico '+s.level+'" title="'+(s.level==='over'?'Te pasaste del tope':'Te queda poco')+'">'+BELL_SVG+'</div>';
+  document.getElementById('dinero-hero').innerHTML = `
+    <div class="card money-hero">
+      ${bell}
+      <div class="money-cap">Quincena ${q.label}</div>
+      <div class="ring-wrap ring-${s.level}" style="color:${s.color}">
+        <svg viewBox="0 0 200 200"><circle class="ring-bg" cx="100" cy="100" r="${R}"/>
+          <circle class="ring-fg" id="ring-fg" cx="100" cy="100" r="${R}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${C.toFixed(1)}"/>
+          ${elapsed > 0 ? `<circle class="ring-pace" cx="${mx}" cy="${my}" r="4.5"><title>Dónde irías con gasto parejo</title></circle>` : ''}</svg>
+        <div class="ring-center">
+          <div class="money-big" id="money-num" style="color:${s.color}">${money(s.left)}</div>
+          <div class="money-cap">${s.left<0?'de más':'te quedan'}</div>
+        </div>
+      </div>
+      <div class="money-cap" style="margin-top:12px;">Tope ${money(s.tope)}<span class="edit-tope" onclick="editTope()" title="Ajustar tope">✎</span></div>
+      <div class="money-sub">${perDay}${s.msg}</div>
+      ${ended ? '' : `<div class="pay-chip">Hoy pagas con: ${pay}</div>`}
+      ${syncChipHTML()}
+    </div>`;
+  animateNumber(document.getElementById('money-num'), LAST_LEFT, s.left);
+  LAST_LEFT = s.left;
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const fg = document.getElementById('ring-fg');
+    if(fg) fg.style.strokeDashoffset = (C * (1 - Math.min(1, Math.max(0, s.pct)))).toFixed(1);
+  }));
+}
+
+function renderDineroList(){
+  const q = currentQ();
+  const items = GASTOS.filter(g => g.iso >= q.start && g.iso <= q.end).sort((a,b) => b.ts - a.ts);
+  const box = document.getElementById('dinero-list');
+  if(!items.length){ box.innerHTML = '<div class="empty-hint">Aún no has anotado gastos en esta quincena</div>'; return; }
+  box.innerHTML = items.map(g => {
+    const c = GASTO_CATS[g.cat] || GASTO_CATS.otro;
+    const d = isoToDate(g.iso).toLocaleDateString('es-MX', {weekday:'short', day:'numeric'});
+    return `<div class="exp-row">
+      <span class="exp-dot" style="background:${c[1]}"></span>
+      <div class="exp-main"><div class="exp-name">${esc(g.note || c[0])}</div><div class="exp-meta">${d} · ${c[0]}</div></div>
+      <span class="exp-amt">${money2(g.amount)}</span>
+      <span class="exp-del" data-del="${g.id}" title="Borrar">✕</span>
+    </div>`;
+  }).join('');
+}
+
+function renderDineroFechas(){
+  const t = todayISO();
+  const next = KEY_DATES.filter(d => d.date >= t).slice(0, 4);
+  document.getElementById('dinero-fechas').innerHTML = next.length
+    ? next.map(d => `<div class="kd-row"><div class="kd-date">${shortDate(d.date)}</div><div class="kd-text ${d.pay?'pay':''}">${d.text}</div></div>`).join('')
+    : '<div class="empty-hint">Plan completado</div>';
+}
+
+function renderDineroDeuda(){
+  const t = todayISO();
+  let bal = DEBT_START;
+  DEBT_SCHEDULE.forEach(([d, b]) => { if(d <= t) bal = b; });
+  const pct = Math.round((1 - bal / DEBT_START) * 100);
+  const months = Math.max(0, Math.round(daysBetween(t, '2027-06-30') / 30.4));
+  document.getElementById('dinero-deuda').innerHTML = `
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:baseline;">
+        <span style="font-family:var(--serif); font-size:25px;">${money(bal)}</span>
+        <span style="font-size:12px; color:var(--tx2);">${pct}% pagado</span>
+      </div>
+      <div class="pbar"><div class="pbar-fill" style="width:${pct}%; background:var(--sage);"></div></div>
+      <div class="money-note">${bal > 0 ? 'Terminas el 30 de junio de 2027 (faltan ~'+months+' meses). ' : 'Préstamos liquidados. '}Es el saldo estimado del plan; el saldo real está en tu app de BBVA.</div>
+    </div>`;
+}
+
+function renderDineroQuincenas(){
+  const cur = currentQ(), t = todayISO();
+  document.getElementById('dinero-quincenas').innerHTML = PLAN_Q.map(q => {
+    const tope = topeOf(q), started = t >= q.start, spent = started ? spentIn(q) : 0;
+    const pct = tope ? Math.min(100, spent / tope * 100) : 0;
+    const col = spent > tope ? 'var(--clay)' : (spent / tope >= 0.75 ? 'var(--gold)' : 'var(--sage)');
+    return `<div class="q-row ${q.id===cur.id?'cur':''}">
+      <div class="q-label">${q.label}</div>
+      <div class="q-bar"><div class="pbar"><div class="pbar-fill" style="width:${pct}%; background:${col};"></div></div></div>
+      <div class="q-nums">${started ? money(spent)+' / ' : ''}${money(tope)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderDineroHoy(){
+  const q = currentQ(), s = moneyState(q);
+  const bell = s.level === 'ok' ? '' : '<span class="hoy-bell '+s.level+'">'+BELL_SVG+'</span>';
+  document.getElementById('dinero-hoy-card').innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+      <span style="font-family:var(--serif); font-size:27px; color:${s.color};">${s.left<0?'−':''}${money(Math.abs(s.left))}</span>
+      <span style="font-size:12px; color:var(--tx2);">${s.left<0?'de más':'te quedan'} · ${q.label}</span>
+    </div>
+    <div class="pbar"><div class="pbar-fill" style="width:${Math.min(100, s.pct*100)}%; background:${s.color};"></div></div>
+    <div style="font-size:12px; color:${s.level==='ok'?'var(--tx2)':s.color}; margin-top:10px;">${bell}${s.level==='low' ? 'Te queda poco · ' : (s.level==='over' ? 'Te pasaste del tope · ' : '')}${s.left>0 ? '≈ '+money(s.left / s.dl)+' por día · ' : ''}toca para anotar un gasto</div>`;
+}
+
+function updateAlertBadge(){
+  const s = moneyState(currentQ());
+  const pill = document.querySelector('.pill[data-view="dinero"]');
+  const pend = typeof pendingToday === 'function' && pendingToday().length > 0;
+  pill.classList.toggle('alert', s.level !== 'ok' || pend);
+  pill.classList.toggle('over', s.level === 'over');
+}
+function renderDineroInsights(){
+  const q = currentQ(), t = todayISO(), s = moneyState(q);
+  const items = GASTOS.filter(g => g.iso >= q.start && g.iso <= q.end);
+  const total = daysBetween(q.start, q.end) + 1;
+  const elapsed = Math.min(total, Math.max(0, daysBetween(q.start, t) + 1));
+  let proj = '';
+  if(elapsed >= 3 && s.spent > 0){
+    const p = s.spent / elapsed * total;
+    proj = p <= s.tope
+      ? 'A este ritmo cierras la quincena en <b>'+money(p)+'</b>, dentro de tu tope.'
+      : 'A este ritmo cerrarías en <b>'+money(p)+'</b>, '+money(p - s.tope)+' sobre el tope. Todavía hay tiempo de ajustar.';
+  } else if(!items.length){
+    proj = 'Anota tus gastos y aquí verás tu ritmo, en qué se va y cómo cierras.';
+  } else {
+    proj = 'Con unos días más de datos te muestro tu ritmo de la quincena.';
+  }
+  // últimos 7 días
+  const days = [];
+  for(let i = 6; i >= 0; i--){ const d = new Date(); d.setDate(d.getDate() - i); days.push(d); }
+  const sums = days.map(d => GASTOS.filter(g => g.iso === isoOf(d)).reduce((a,g) => a + g.amount, 0));
+  const mx = Math.max(...sums, 1);
+  const L = ['D','L','M','M','J','V','S'];
+  const bars = days.map((d,i) => `<div class="wb ${i===6?'today':''}" title="${money(sums[i])}"><i style="height:${Math.max(3, sums[i]/mx*100)}%"></i><span>${L[d.getDay()]}</span></div>`).join('');
+  // categorías
+  const byCat = {}; items.forEach(g => { byCat[g.cat] = (byCat[g.cat]||0) + g.amount; });
+  const tot = Object.values(byCat).reduce((a,b) => a+b, 0);
+  const cats = Object.keys(byCat).sort((a,b) => byCat[b]-byCat[a]);
+  const catHTML = tot ? `
+    <div class="cat-bar">${cats.map(c => `<div style="width:${byCat[c]/tot*100}%; background:${(GASTO_CATS[c]||GASTO_CATS.otro)[1]}"></div>`).join('')}</div>
+    <div class="cat-legend">${cats.map(c => `<span><i style="background:${(GASTO_CATS[c]||GASTO_CATS.otro)[1]}"></i>${(GASTO_CATS[c]||GASTO_CATS.otro)[0]} ${money(byCat[c])}</span>`).join('')}</div>` : '';
+  document.getElementById('dinero-insights').innerHTML = `<div class="ins-line">${proj}</div><div class="week-bars">${bars}</div>${catHTML}`;
+}
+function renderNotasList(){
+  const freq = {};
+  GASTOS.forEach(g => { if(g.note) freq[g.note] = (freq[g.note]||0) + 1; });
+  document.getElementById('notas-list').innerHTML = Object.keys(freq).sort((a,b) => freq[b]-freq[a]).slice(0,12).map(n => '<option value="'+esc(n)+'">').join('');
+}
+function renderDinero(){
+  renderDineroHero(); renderDineroList(); renderDineroInsights(); renderDineroFechas(); renderDineroDeuda(); renderDineroQuincenas(); renderNotasList(); updateAlertBadge();
+}
+
+/* ---- sync con tu hoja (cola con reintento: si no hay red, se envía después) ---- */
+async function loadCola(){ try{ const r = await window.storage.get('dinero-cola'); COLA = r ? JSON.parse(r.value) : []; }catch(e){ COLA = []; } }
+async function saveCola(){ try{ await window.storage.set('dinero-cola', JSON.stringify(COLA)); }catch(e){} }
+let flushing = false;
+async function flushCola(){
+  if(!WEBHOOK_URL || flushing || !COLA.length){ return; }
+  flushing = true;
+  while(COLA.length){
+    try{
+      const r = await fetch(WEBHOOK_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(COLA[0])});
+      if(!r.ok) break;
+      COLA.shift(); await saveCola();
+    }catch(e){ break; }
+  }
+  flushing = false;
+  renderDineroHero();
+}
+function enqueueGasto(op, g){
+  const q = currentQ(), s = moneyState(q);
+  COLA.push({kind:'gasto', op, id:g.id, fecha:g.iso, categoria:(GASTO_CATS[g.cat]||GASTO_CATS.otro)[0], monto:g.amount, nota:g.note||'',
+    quincena:q.label, tope:s.tope, restante:s.left, ts:Date.now()});
+  saveCola(); flushCola();
+}
+window.addEventListener('online', flushCola);
+
+async function addGasto(){
+  const inp = document.getElementById('gasto-monto');
+  const amount = parseFloat(inp.value);
+  if(!(amount > 0)){ showToast('Escribe el monto del gasto', 'warn'); inp.focus(); return; }
+  const before = moneyState(currentQ());
+  const back = parseInt(document.getElementById('gasto-dia').value) || 0;
+  const d = new Date(); d.setDate(d.getDate() - back);
+  const g = {id:'g'+Date.now(), iso:isoOf(d), ts:Date.now(), amount, cat:selectedCat,
+    note:document.getElementById('gasto-nota').value.trim()};
+  GASTOS.push(g);
+  await saveDinero();
+  inp.value = ''; document.getElementById('gasto-nota').value = ''; document.getElementById('gasto-dia').value = '0';
+  renderDinero(); renderDineroHoy();
+  enqueueGasto('add', g);
+  const s = moneyState(currentQ());
+  const vib = p => { try{ navigator.vibrate && navigator.vibrate(p); }catch(e){} };
+  if(s.level === 'over' && before.level !== 'over'){ vib([40,60,40]); showToast('Llegaste al tope de la quincena. Respira: ajustamos en la siguiente.', 'warn'); }
+  else if(s.level === 'low' && before.level === 'ok'){ vib([25,50,25]); showToast('Te queda poco: '+money(s.left)+' para '+s.dl+' días', 'warn'); }
+  else if(s.left >= 0){ vib(12); showToast('Anotado · te quedan '+money(s.left), 'ok'); }
+  else { showToast('Anotado · pasaste el tope por '+money(-s.left), 'warn'); }
+}
+async function delGasto(id){
+  const g = GASTOS.find(x => x.id === id);
+  GASTOS = GASTOS.filter(x => x.id !== id);
+  await saveDinero();
+  renderDinero(); renderDineroHoy();
+  if(g) enqueueGasto('del', g);
+}
+async function editTope(){
+  const q = currentQ();
+  const v = prompt('Tope de gasto para la quincena '+q.label+':', topeOf(q));
+  if(v === null) return;
+  const n = parseFloat(String(v).replace(/[$,\s]/g, ''));
+  if(!(n > 0)) return;
+  TOPES_OVERRIDE[q.id] = n;
+  await saveDinero();
+  renderDinero(); renderDineroHoy();
+}
+document.getElementById('cat-row').addEventListener('click', (e)=>{
+  const chip = e.target.closest('.cat-chip');
+  if(!chip) return;
+  selectedCat = chip.dataset.cat;
+  document.querySelectorAll('.cat-chip').forEach(c => c.classList.toggle('active', c === chip));
+});
+document.getElementById('dinero-list').addEventListener('click', (e)=>{
+  const del = e.target.closest('[data-del]');
+  if(del) delGasto(del.dataset.del);
+});
+document.getElementById('gasto-monto').addEventListener('keydown', (e)=>{ if(e.key === 'Enter') addGasto(); });
+document.getElementById('gasto-nota').addEventListener('keydown', (e)=>{ if(e.key === 'Enter') addGasto(); });
+
+/* ============ AGENDA · días clave ============ */
+const AGENDA = (()=>{
+  const ev = [], A = (date, tipo, text, amt) => ev.push({date, tipo, text, amt});
+  A('2026-11-30','info','Llega la nómina de Joart: $9,500 (Sergio + Daniela).');
+  DEBT_SCHEDULE.forEach(([d], i) => {
+    const last = i === DEBT_SCHEDULE.length - 1, extra = d >= '2027-01-30';
+    if(last) A(d,'pago','Préstamos BBVA: ÚLTIMO pago. ¡Los liquidas hoy!', 2128.51);
+    else A(d,'pago','Préstamos BBVA: mínimo $555'+(extra?' + abono extra $1,700':''), extra ? 2255 : 555);
+  });
+  A('2026-12-15','pago','Atrato: pago de diciembre', 488.72);
+  A('2027-01-15','pago','Atrato: último pago, ¡se acaba!', 488.72);
+  ['2027-01-15','2027-02-15','2027-03-15','2027-04-15','2027-05-15','2027-06-15'].forEach(d => A(d,'pago','Dentista: mensualidad', 2150));
+  A('2026-12-23','tarjeta','Pagar la tarjeta COMPLETA (nunca el mínimo)', 12100);
+  A('2027-01-23','tarjeta','Pagar la tarjeta COMPLETA (nunca el mínimo)', 6800);
+  ['2027-02-23','2027-03-23','2027-04-23','2027-05-23','2027-06-23'].forEach(d => A(d,'tarjeta','Pagar la tarjeta COMPLETA: tus fijos + lo que hayas cargado', 2540));
+  ['2026-12-15','2027-01-15','2027-02-15','2027-03-15','2027-04-15','2027-05-15','2027-06-15'].forEach(d => A(d,'oficial','Haces oficial tu quincena del 15', 10000));
+  ['2026-12-20','2027-01-30','2027-02-28','2027-03-30','2027-04-30','2027-05-30','2027-06-30'].forEach(d => A(d,'oficial', d==='2026-12-20' ? 'Haces oficial la quincena del 30 (adelantada)' : 'Haces oficial tu quincena del 30', 5000));
+  A('2027-01-24','info','Desde hoy tu gasto personal va con tarjeta de débito.');
+  A('2027-01-30','info','Hoy arranca tu abono extra de $1,700 por quincena.');
+  return ev.sort((a,b) => a.date < b.date ? -1 : (a.date > b.date ? 1 : 0));
+})();
+const FRASES_PAGO = [
+  'Cada pago es una deuda más chica. Vas en camino, a tu ritmo.',
+  'Pagar a tiempo es cuidar a tu yo de los próximos meses. Bien hecho de antemano.',
+  'Esto ya estaba contemplado en tu plan. Respira: no hay sorpresas.',
+  'Hoy no necesitas ser perfecto, solo constante. Y lo estás siendo.',
+  'Un pago a la vez. La culpa no paga deudas; tu constancia sí.',
+  'Lo difícil ya lo hiciste: armar el plan. Hoy solo lo ejecutas.',
+  'Tu yo de julio de 2027 te va a agradecer este día.',
+];
+let HECHOS = {};
+async function loadHechos(){ try{ const r = await window.storage.get('dinero-hechos'); HECHOS = r ? JSON.parse(r.value) : {}; }catch(e){ HECHOS = {}; } }
+async function toggleHecho(key){
+  HECHOS[key] = !HECHOS[key];
+  try{ await window.storage.set('dinero-hechos', JSON.stringify(HECHOS)); }catch(e){}
+  renderAgenda(); updateAlertBadge();
+  try{ navigator.vibrate && navigator.vibrate(HECHOS[key] ? 15 : 5); }catch(e){}
+  if(HECHOS[key]) showToast('Listo, uno menos. Bien hecho.', 'ok');
+}
+const evKey = e => e.date + '|' + e.tipo + '|' + e.text;
+function pendingToday(){ const t = todayISO(); return AGENDA.filter(e => e.date === t && e.tipo !== 'info' && !HECHOS[evKey(e)]); }
+function renderAgenda(){
+  const t = todayISO();
+  const today = AGENDA.filter(e => e.date === t);
+  const soon = AGENDA.filter(e => { const d = daysBetween(t, e.date); return d >= 1 && d <= (e.tipo === 'tarjeta' ? 3 : 1) && e.tipo !== 'info'; });
+  let html = '';
+  if(today.length){
+    const doy = Math.floor((isoToDate(t) - new Date(isoToDate(t).getFullYear(),0,0)) / 86400000);
+    const hasPago = today.some(e => e.tipo === 'pago' || e.tipo === 'tarjeta');
+    const debtOn = DEBT_SCHEDULE.filter(([d]) => d <= t).slice(-1)[0];
+    const pct = debtOn ? Math.round((1 - debtOn[1] / DEBT_START) * 100) : 0;
+    const rows = today.map(e => {
+      const k = evKey(e), done = !!HECHOS[k], info = e.tipo === 'info';
+      return `<div class="ag-row ${done?'done':''} ${info?'info':''}" ${info?'':`data-hecho="${esc(k)}"`}>
+        <div class="ag-chk">${info ? '·' : (done ? '✓' : '')}</div>
+        <div class="ag-txt">${esc(e.text)}</div>${e.amt ? `<div class="ag-amt">${e.amt % 1 ? money2(e.amt) : money(e.amt)}</div>` : ''}</div>`;
+    }).join('');
+    const quote = hasPago ? FRASES_PAGO[doy % FRASES_PAGO.length] + (pct > 0 && today.some(e => e.text.startsWith('Préstamos')) ? ' Con este pago llevas ~'+pct+'% de tus préstamos pagado.' : '') : '';
+    html += `<div class="card ag-card"><div class="ag-title">Hoy toca</div>${rows}${quote ? `<div class="ag-quote">${quote}</div>` : ''}`;
+    if(soon.length) html += `<div class="ag-soon">${soon.map(e => (daysBetween(t,e.date)===1 ? 'Mañana' : 'En '+daysBetween(t,e.date)+' días')+': '+esc(e.text.replace('Pagar la tarjeta COMPLETA','tarjeta completa'))+' · '+money(e.amt||0)).join('<br>')}</div>`;
+    html += '</div>';
+  } else if(soon.length){
+    html += `<div class="card ag-card"><div class="ag-title">Para que no se te pase</div><div class="ag-soon" style="margin-top:0; color:var(--tx1); font-size:13px;">${soon.map(e => (daysBetween(t,e.date)===1 ? 'Mañana' : 'En '+daysBetween(t,e.date)+' días')+': '+esc(e.text)+(e.amt?' · '+money(e.amt):'')).join('<br>')}</div></div>`;
+  }
+  ['agenda-hoy','agenda-dinero'].forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = html; });
+}
+['agenda-hoy','agenda-dinero'].forEach(id => document.getElementById(id).addEventListener('click', e => {
+  const row = e.target.closest('[data-hecho]'); if(row) toggleHecho(row.dataset.hecho);
+}));
+document.addEventListener('visibilitychange', () => { if(!document.hidden){ renderAgenda(); renderDinero(); renderDineroHoy(); } });
+
 /* ============ INIT ============ */
 async function init(){
   await loadState();
   await loadPendientes();
+  await loadDinero();
+  await loadCola();
+  await loadHechos();
   renderHeaderDate();
   renderHoy();
   renderCuerpo();
@@ -948,6 +1503,10 @@ async function init(){
   renderWeekTabs();
   renderRoutineBody();
   renderPrinciples();
+  renderDinero();
+  renderDineroHoy();
+  renderAgenda();
+  flushCola();
 }
 init();
 
