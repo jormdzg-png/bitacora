@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dia-v2';
+const CACHE_NAME = 'dia-v3';
 const ASSETS = ['./dia.html'];
 
 self.addEventListener('install', (event) => {
@@ -11,6 +11,19 @@ self.addEventListener('activate', (event) => {
   );
   self.clients.claim();
 });
+// Stale-while-revalidate: abre al instante desde caché y se actualiza en segundo plano.
+// Así las nuevas versiones llegan solas, sin tener que cambiar el nombre del caché.
 self.addEventListener('fetch', (event) => {
-  event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request)));
+  if (event.request.method !== 'GET') return;
+  event.respondWith(
+    caches.open(CACHE_NAME).then((cache) =>
+      cache.match(event.request).then((cached) => {
+        const network = fetch(event.request).then((res) => {
+          if (res && res.ok && new URL(event.request.url).origin === self.location.origin) cache.put(event.request, res.clone());
+          return res;
+        }).catch(() => cached);
+        return cached || network;
+      })
+    )
+  );
 });
