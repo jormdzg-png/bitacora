@@ -13,8 +13,8 @@
  * 4. Implementar → Administrar implementaciones → editar (lápiz) → Versión nueva → Implementar.
  *    (La URL /exec es la misma; no tienes que volver a pegarla en el panel.)
  *
- * Crea sola las pestañas "Gastos" (cada gasto) y "Resumen Gastos" (por quincena, con
- * tope, gastado, restante y estado).
+ * Escribe cada gasto en la pestaña "Gastos". La pestaña "Plan" ya lee de ahí:
+ * las columnas "Gastado (tu app)", "Te queda" y "Estado" se actualizan solas.
  */
 function handleGasto_(d) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -32,29 +32,5 @@ function handleGasto_(d) {
   } else if (idx < 0) {
     sh.appendRow([d.id, d.fecha, d.categoria, d.monto, d.nota, d.quincena, d.tope, d.restante, new Date(d.ts)]);
   }
-  actualizarResumenGastos_(ss, sh);
   return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
-}
-
-function actualizarResumenGastos_(ss, sh) {
-  var rs = ss.getSheetByName('Resumen Gastos');
-  if (!rs) rs = ss.insertSheet('Resumen Gastos');
-  rs.clear();
-  rs.getRange('A1:E1').setValues([['Quincena', 'Tope', 'Gastado', 'Restante', 'Estado']]).setFontWeight('bold');
-  var n = sh.getLastRow() - 1;
-  if (n < 1) return;
-  var rows = sh.getRange(2, 1, n, 9).getValues();
-  var por = {};
-  rows.forEach(function (r) {
-    var q = r[5];
-    if (!por[q]) por[q] = { tope: r[6], gastado: 0 };
-    por[q].gastado += Number(r[3]) || 0;
-    por[q].tope = r[6];
-  });
-  var out = Object.keys(por).map(function (q) {
-    var t = por[q].tope, g = por[q].gastado, left = t - g;
-    return [q, t, g, left, left < 0 ? '🔴 Te pasaste' : (g / t >= 0.75 ? '🟡 Te queda poco' : '🟢 Vas bien')];
-  });
-  rs.getRange(2, 1, out.length, 5).setValues(out);
-  rs.getRange(2, 2, out.length, 3).setNumberFormat('$#,##0');
 }

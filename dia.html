@@ -248,6 +248,20 @@ input[type=text]{min-height:auto;}
 @media (prefers-reduced-motion:reduce){
   .ring-fg,.alert-ico,.hoy-bell,.pill.alert::after,.ring-low .ring-fg,.ring-over .ring-fg,.wb i,.cat-bar div,.exp-row{animation:none !important; transition:none !important;}
 }
+/* --- Agenda de días clave --- */
+.ag-card{border-color:var(--gold); background:linear-gradient(180deg,var(--gold-dim),var(--bg1) 85%); animation:fadeUp .4s ease both;}
+.ag-title{font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--gold); font-weight:600; margin-bottom:6px;}
+.ag-row{display:flex; align-items:center; gap:12px; padding:9px 0; cursor:pointer; user-select:none;}
+.ag-chk{flex:0 0 24px; width:24px; height:24px; border-radius:50%; border:1.7px solid var(--gold); display:flex; align-items:center; justify-content:center; color:#fff; font-size:13px; transition:all .25s ease;}
+.ag-row.done .ag-chk{background:var(--sage); border-color:var(--sage);}
+.ag-row.done .ag-txt{text-decoration:line-through; opacity:.55;}
+.ag-row.info{cursor:default;}
+.ag-row.info .ag-chk{border-style:dotted; border-color:var(--tx2);}
+.ag-txt{flex:1; font-size:14px; line-height:1.4;}
+.ag-amt{font-family:var(--mono); font-size:13.5px; white-space:nowrap;}
+.ag-quote{font-size:12.5px; color:var(--tx1); line-height:1.55; margin-top:8px; padding-top:10px; border-top:1px solid var(--line); font-style:italic;}
+.ag-soon{font-size:12px; color:var(--tx2); margin-top:8px; line-height:1.6;}
+.ag-allgood{font-size:12.5px; color:var(--sage); line-height:1.5;}
 </style>
 </head>
 <body>
@@ -291,6 +305,8 @@ input[type=text]{min-height:auto;}
   <div class="section-label">Anillos de hoy</div>
   <div class="ring-row" id="ring-row"></div>
 
+  <div id="agenda-hoy"></div>
+
   <div class="section-label">Dinero</div>
   <div class="card" id="dinero-hoy-card" style="cursor:pointer;" onclick="document.querySelector('.pill[data-view=dinero]').click()"></div>
 
@@ -303,6 +319,7 @@ input[type=text]{min-height:auto;}
 
 <!-- ============ DINERO ============ -->
 <div class="view" id="view-dinero">
+  <div id="agenda-dinero"></div>
   <div id="dinero-hero"></div>
 
   <div class="section-label">Anotar gasto</div>
@@ -1279,7 +1296,8 @@ function renderDineroHoy(){
 function updateAlertBadge(){
   const s = moneyState(currentQ());
   const pill = document.querySelector('.pill[data-view="dinero"]');
-  pill.classList.toggle('alert', s.level !== 'ok');
+  const pend = typeof pendingToday === 'function' && pendingToday().length > 0;
+  pill.classList.toggle('alert', s.level !== 'ok' || pend);
   pill.classList.toggle('over', s.level === 'over');
 }
 function renderDineroInsights(){
@@ -1399,12 +1417,84 @@ document.getElementById('dinero-list').addEventListener('click', (e)=>{
 document.getElementById('gasto-monto').addEventListener('keydown', (e)=>{ if(e.key === 'Enter') addGasto(); });
 document.getElementById('gasto-nota').addEventListener('keydown', (e)=>{ if(e.key === 'Enter') addGasto(); });
 
+/* ============ AGENDA · días clave ============ */
+const AGENDA = (()=>{
+  const ev = [], A = (date, tipo, text, amt) => ev.push({date, tipo, text, amt});
+  A('2026-11-30','info','Llega la nómina de Joart: $9,500 (Sergio + Daniela).');
+  DEBT_SCHEDULE.forEach(([d], i) => {
+    const last = i === DEBT_SCHEDULE.length - 1, extra = d >= '2027-01-30';
+    if(last) A(d,'pago','Préstamos BBVA: ÚLTIMO pago. ¡Los liquidas hoy!', 2128.51);
+    else A(d,'pago','Préstamos BBVA: mínimo $555'+(extra?' + abono extra $1,700':''), extra ? 2255 : 555);
+  });
+  A('2026-12-15','pago','Atrato: pago de diciembre', 488.72);
+  A('2027-01-15','pago','Atrato: último pago, ¡se acaba!', 488.72);
+  ['2027-01-15','2027-02-15','2027-03-15','2027-04-15','2027-05-15','2027-06-15'].forEach(d => A(d,'pago','Dentista: mensualidad', 2150));
+  A('2026-12-23','tarjeta','Pagar la tarjeta COMPLETA (nunca el mínimo)', 12100);
+  A('2027-01-23','tarjeta','Pagar la tarjeta COMPLETA (nunca el mínimo)', 6800);
+  ['2027-02-23','2027-03-23','2027-04-23','2027-05-23','2027-06-23'].forEach(d => A(d,'tarjeta','Pagar la tarjeta COMPLETA: tus fijos + lo que hayas cargado', 2540));
+  ['2026-12-15','2027-01-15','2027-02-15','2027-03-15','2027-04-15','2027-05-15','2027-06-15'].forEach(d => A(d,'oficial','Haces oficial tu quincena del 15', 10000));
+  ['2026-12-20','2027-01-30','2027-02-28','2027-03-30','2027-04-30','2027-05-30','2027-06-30'].forEach(d => A(d,'oficial', d==='2026-12-20' ? 'Haces oficial la quincena del 30 (adelantada)' : 'Haces oficial tu quincena del 30', 5000));
+  A('2027-01-24','info','Desde hoy tu gasto personal va con tarjeta de débito.');
+  A('2027-01-30','info','Hoy arranca tu abono extra de $1,700 por quincena.');
+  return ev.sort((a,b) => a.date < b.date ? -1 : (a.date > b.date ? 1 : 0));
+})();
+const FRASES_PAGO = [
+  'Cada pago es una deuda más chica. Vas en camino, a tu ritmo.',
+  'Pagar a tiempo es cuidar a tu yo de los próximos meses. Bien hecho de antemano.',
+  'Esto ya estaba contemplado en tu plan. Respira: no hay sorpresas.',
+  'Hoy no necesitas ser perfecto, solo constante. Y lo estás siendo.',
+  'Un pago a la vez. La culpa no paga deudas; tu constancia sí.',
+  'Lo difícil ya lo hiciste: armar el plan. Hoy solo lo ejecutas.',
+  'Tu yo de julio de 2027 te va a agradecer este día.',
+];
+let HECHOS = {};
+async function loadHechos(){ try{ const r = await window.storage.get('dinero-hechos'); HECHOS = r ? JSON.parse(r.value) : {}; }catch(e){ HECHOS = {}; } }
+async function toggleHecho(key){
+  HECHOS[key] = !HECHOS[key];
+  try{ await window.storage.set('dinero-hechos', JSON.stringify(HECHOS)); }catch(e){}
+  renderAgenda(); updateAlertBadge();
+  try{ navigator.vibrate && navigator.vibrate(HECHOS[key] ? 15 : 5); }catch(e){}
+  if(HECHOS[key]) showToast('Listo, uno menos. Bien hecho.', 'ok');
+}
+const evKey = e => e.date + '|' + e.tipo + '|' + e.text;
+function pendingToday(){ const t = todayISO(); return AGENDA.filter(e => e.date === t && e.tipo !== 'info' && !HECHOS[evKey(e)]); }
+function renderAgenda(){
+  const t = todayISO();
+  const today = AGENDA.filter(e => e.date === t);
+  const soon = AGENDA.filter(e => { const d = daysBetween(t, e.date); return d >= 1 && d <= (e.tipo === 'tarjeta' ? 3 : 1) && e.tipo !== 'info'; });
+  let html = '';
+  if(today.length){
+    const doy = Math.floor((isoToDate(t) - new Date(isoToDate(t).getFullYear(),0,0)) / 86400000);
+    const hasPago = today.some(e => e.tipo === 'pago' || e.tipo === 'tarjeta');
+    const debtOn = DEBT_SCHEDULE.filter(([d]) => d <= t).slice(-1)[0];
+    const pct = debtOn ? Math.round((1 - debtOn[1] / DEBT_START) * 100) : 0;
+    const rows = today.map(e => {
+      const k = evKey(e), done = !!HECHOS[k], info = e.tipo === 'info';
+      return `<div class="ag-row ${done?'done':''} ${info?'info':''}" ${info?'':`data-hecho="${esc(k)}"`}>
+        <div class="ag-chk">${info ? '·' : (done ? '✓' : '')}</div>
+        <div class="ag-txt">${esc(e.text)}</div>${e.amt ? `<div class="ag-amt">${e.amt % 1 ? money2(e.amt) : money(e.amt)}</div>` : ''}</div>`;
+    }).join('');
+    const quote = hasPago ? FRASES_PAGO[doy % FRASES_PAGO.length] + (pct > 0 && today.some(e => e.text.startsWith('Préstamos')) ? ' Con este pago llevas ~'+pct+'% de tus préstamos pagado.' : '') : '';
+    html += `<div class="card ag-card"><div class="ag-title">Hoy toca</div>${rows}${quote ? `<div class="ag-quote">${quote}</div>` : ''}`;
+    if(soon.length) html += `<div class="ag-soon">${soon.map(e => (daysBetween(t,e.date)===1 ? 'Mañana' : 'En '+daysBetween(t,e.date)+' días')+': '+esc(e.text.replace('Pagar la tarjeta COMPLETA','tarjeta completa'))+' · '+money(e.amt||0)).join('<br>')}</div>`;
+    html += '</div>';
+  } else if(soon.length){
+    html += `<div class="card ag-card"><div class="ag-title">Para que no se te pase</div><div class="ag-soon" style="margin-top:0; color:var(--tx1); font-size:13px;">${soon.map(e => (daysBetween(t,e.date)===1 ? 'Mañana' : 'En '+daysBetween(t,e.date)+' días')+': '+esc(e.text)+(e.amt?' · '+money(e.amt):'')).join('<br>')}</div></div>`;
+  }
+  ['agenda-hoy','agenda-dinero'].forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = html; });
+}
+['agenda-hoy','agenda-dinero'].forEach(id => document.getElementById(id).addEventListener('click', e => {
+  const row = e.target.closest('[data-hecho]'); if(row) toggleHecho(row.dataset.hecho);
+}));
+document.addEventListener('visibilitychange', () => { if(!document.hidden){ renderAgenda(); renderDinero(); renderDineroHoy(); } });
+
 /* ============ INIT ============ */
 async function init(){
   await loadState();
   await loadPendientes();
   await loadDinero();
   await loadCola();
+  await loadHechos();
   renderHeaderDate();
   renderHoy();
   renderCuerpo();
@@ -1415,6 +1505,7 @@ async function init(){
   renderPrinciples();
   renderDinero();
   renderDineroHoy();
+  renderAgenda();
   flushCola();
 }
 init();
