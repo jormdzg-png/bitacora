@@ -171,6 +171,43 @@ input[type=text]{min-height:auto;}
 #sync-input-row{display:none; gap:8px; padding:12px 22px; background:var(--bg2); border-bottom:1px solid var(--line);}
 .btn-sm{background:var(--sage); color:#fff; border:none; border-radius:14px; padding:0 14px; height:32px; font-size:11.5px; cursor:pointer;}
 .btn-sm.ghost{background:none; border:1px solid var(--line2); color:var(--tx1);}
+
+/* ===== DINERO ===== */
+.money-hero{text-align:center; padding:24px 18px 20px;}
+.money-cap{font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--tx2); font-weight:600;}
+.money-big{font-family:var(--serif); font-size:50px; line-height:1.05; letter-spacing:-.5px; margin:10px 0 4px; transition:color .3s ease;}
+.money-sub{font-size:13px; color:var(--tx1); margin-top:13px; line-height:1.55;}
+.money-note{font-size:12px; color:var(--tx2); margin-top:10px; line-height:1.55;}
+.pay-chip{display:inline-block; margin-top:14px; font-size:11.5px; padding:6px 13px; border-radius:20px; background:var(--sky-dim); color:var(--sky); border:1px solid var(--line);}
+.edit-tope{cursor:pointer; color:var(--tx2); margin-left:4px;}
+.chip-row{display:flex; gap:6px; overflow-x:auto; padding:0 0 12px; -ms-overflow-style:none; scrollbar-width:none;}
+.chip-row::-webkit-scrollbar{display:none;}
+.cat-chip{flex:0 0 auto; padding:7px 14px; border-radius:20px; font-size:12px; background:var(--bg2); border:1px solid var(--line); color:var(--tx1); cursor:pointer; transition:all .2s ease; user-select:none;}
+.cat-chip.active{background:var(--sage); border-color:var(--sage); color:#fff;}
+.add-row{display:flex; gap:8px; align-items:center;}
+.amt-input{flex:0 0 108px; width:108px; background:var(--bg2); border:1px solid var(--line2); color:var(--tx0); font-size:16px; padding:11px 12px; border-radius:14px; font-family:var(--mono); min-width:0;}
+.note-input{flex:1 1 auto; min-width:0; width:auto;}
+.day-select{flex:0 0 auto; background:var(--bg2); border:1px solid var(--line2); color:var(--tx1); font-size:12.5px; padding:11px 8px; border-radius:14px; font-family:inherit;}
+.exp-row{display:flex; align-items:center; gap:11px; padding:12px 2px; border-bottom:1px solid var(--line);}
+.exp-row:last-child{border-bottom:none;}
+.exp-dot{width:8px; height:8px; border-radius:50%; flex:0 0 auto;}
+.exp-main{flex:1; min-width:0;}
+.exp-name{font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.exp-meta{font-size:11px; color:var(--tx2); margin-top:2px;}
+.exp-amt{font-family:var(--mono); font-size:14px;}
+.exp-del{color:var(--tx2); font-size:15px; padding:2px 6px; cursor:pointer;}
+.q-row{display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid var(--line); font-size:12.5px;}
+.q-row:last-child{border-bottom:none;}
+.q-row.cur{font-weight:600;}
+.q-label{flex:0 0 74px; color:var(--tx1);}
+.q-bar{flex:1;}
+.q-bar .pbar{margin-top:0;}
+.q-nums{flex:0 0 auto; font-family:var(--mono); font-size:11.5px; color:var(--tx2); text-align:right; min-width:92px;}
+.kd-row{display:flex; gap:12px; align-items:flex-start; padding:11px 0; border-bottom:1px solid var(--line);}
+.kd-row:last-child{border-bottom:none;}
+.kd-date{flex:0 0 52px; font-family:var(--mono); font-size:12px; color:var(--tx2); padding-top:1px;}
+.kd-text{font-size:13.5px; line-height:1.45; flex:1;}
+.kd-text.pay{color:var(--clay); font-weight:600;}
 </style>
 </head>
 <body>
@@ -182,6 +219,7 @@ input[type=text]{min-height:auto;}
   </div>
   <nav id="nav">
     <div class="pill active" data-view="hoy">Hoy</div>
+    <div class="pill" data-view="dinero">Dinero</div>
     <div class="pill" data-view="cuerpo">Cuerpo</div>
     <div class="pill" data-view="metas">Metas</div>
     <div class="pill" data-view="rutina">Rutina</div>
@@ -213,11 +251,57 @@ input[type=text]{min-height:auto;}
   <div class="section-label">Anillos de hoy</div>
   <div class="ring-row" id="ring-row"></div>
 
+  <div class="section-label">Dinero</div>
+  <div class="card" id="dinero-hoy-card" style="cursor:pointer;" onclick="document.querySelector('.pill[data-view=dinero]').click()"></div>
+
   <div class="section-label">Tiempo libre sugerido</div>
   <div class="today-strip" id="today-strip"></div>
 
   <div class="section-label">Check-in del día</div>
   <div class="card" id="checkin-card" style="border-left:2px solid var(--gold);"></div>
+</div>
+
+<!-- ============ DINERO ============ -->
+<div class="view" id="view-dinero">
+  <div id="dinero-hero"></div>
+
+  <div class="section-label">Anotar gasto</div>
+  <div class="card">
+    <div class="chip-row" id="cat-row">
+      <div class="cat-chip active" data-cat="comida">Comida</div>
+      <div class="cat-chip" data-cat="super">Súper</div>
+      <div class="cat-chip" data-cat="gusto">Gusto</div>
+      <div class="cat-chip" data-cat="transporte">Transporte</div>
+      <div class="cat-chip" data-cat="otro">Otro</div>
+    </div>
+    <div class="add-row">
+      <input id="gasto-monto" class="amt-input" type="number" inputmode="decimal" min="0" step="0.01" placeholder="$ monto">
+      <input id="gasto-nota" class="note-input" type="text" placeholder="Nota (opcional)">
+      <select id="gasto-dia" class="day-select" aria-label="Día del gasto"><option value="0">Hoy</option><option value="1">Ayer</option></select>
+    </div>
+    <button class="btn-sm" style="width:100%; height:44px; font-size:13.5px; margin-top:12px;" onclick="addGasto()">Añadir</button>
+  </div>
+
+  <div class="section-label">Esta quincena</div>
+  <div class="card" style="padding:4px 16px;" id="dinero-list"></div>
+
+  <div class="section-label">Próximas fechas</div>
+  <div class="card" style="padding:4px 16px;" id="dinero-fechas"></div>
+
+  <div class="section-label">Préstamos BBVA</div>
+  <div id="dinero-deuda"></div>
+
+  <div class="section-label">Todas las quincenas</div>
+  <div class="card" style="padding:6px 16px;" id="dinero-quincenas"></div>
+
+  <div class="section-label">Reglas</div>
+  <div class="card" style="font-size:13px; color:var(--tx1); line-height:1.75;">
+    · Todo lo personal cabe en el tope de la quincena. Dentro del tope no hay culpa.<br>
+    · Hasta el 23 de enero pagas con la tarjeta de crédito; desde el 24 de enero, con débito.<br>
+    · El dinero de Joart no se toca: se queda en la cuenta de ahorro.<br>
+    · Revisas tus números solo el 15 y el 30, cuando haces oficial tu quincena. El resto del mes, vives dentro de tu tope.<br>
+    · Si un mes viene flojo, bajas el abono extra a $500. Nada más se mueve.
+  </div>
 </div>
 
 <!-- ============ CUERPO ============ -->
@@ -936,10 +1020,231 @@ function renderPrinciples(){
   ).join('');
 }
 
+/* ============ DINERO · plan financiero por quincenas ============ */
+// Tope de gasto personal por quincena (comida, súper, gustos, lo que surja). Los fijos, préstamos y dentista van aparte.
+const PLAN_Q = [
+  {id:'q01', label:'16–30 nov', start:'2026-11-16', end:'2026-11-30', tope:1500},
+  {id:'q02', label:'1–15 dic',  start:'2026-12-01', end:'2026-12-15', tope:2000},
+  {id:'q03', label:'16–31 dic', start:'2026-12-16', end:'2026-12-31', tope:2300},
+  {id:'q04', label:'1–15 ene',  start:'2027-01-01', end:'2027-01-15', tope:2750},
+  {id:'q05', label:'16–31 ene', start:'2027-01-16', end:'2027-01-31', tope:2750},
+  {id:'q06', label:'1–15 feb',  start:'2027-02-01', end:'2027-02-15', tope:2750},
+  {id:'q07', label:'16–28 feb', start:'2027-02-16', end:'2027-02-28', tope:2750},
+  {id:'q08', label:'1–15 mar',  start:'2027-03-01', end:'2027-03-15', tope:2750},
+  {id:'q09', label:'16–31 mar', start:'2027-03-16', end:'2027-03-31', tope:2750},
+  {id:'q10', label:'1–15 abr',  start:'2027-04-01', end:'2027-04-15', tope:2750},
+  {id:'q11', label:'16–30 abr', start:'2027-04-16', end:'2027-04-30', tope:2750},
+  {id:'q12', label:'1–15 may',  start:'2027-05-01', end:'2027-05-15', tope:2750},
+  {id:'q13', label:'16–31 may', start:'2027-05-16', end:'2027-05-31', tope:2750},
+  {id:'q14', label:'1–15 jun',  start:'2027-06-01', end:'2027-06-15', tope:2750},
+  {id:'q15', label:'16–30 jun', start:'2027-06-16', end:'2027-06-30', tope:2750},
+];
+// Saldo estimado de los 2 préstamos BBVA después de cada pago (con $555 de mínimo + $1,700 de abono extra desde el 30 ene)
+const DEBT_START = 23133.96;
+const DEBT_SCHEDULE = [
+  ['2026-11-30',22959.22],['2026-12-15',22781.61],['2026-12-30',22601.08],['2027-01-15',22417.59],
+  ['2027-01-30',20531.08],['2027-02-15',18613.56],['2027-02-28',16664.52],['2027-03-15',14683.44],
+  ['2027-03-30',12669.80],['2027-04-15',10623.06],['2027-04-30',8542.68],['2027-05-15',6428.10],
+  ['2027-05-30',4278.76],['2027-06-15',2094.09],['2027-06-30',0],
+];
+const KEY_DATES = [
+  {date:'2026-11-30', text:'Nómina de Joart $9,500 (Sergio + Daniela). Préstamos −$555.'},
+  {date:'2026-12-15', text:'Haces oficial $10,000. Préstamos −$555 y Atrato −$489.'},
+  {date:'2026-12-20', text:'Haces oficial tu quincena del 30 dic (adelantada).'},
+  {date:'2026-12-23', text:'PAGAR LA TARJETA COMPLETA (~$12,100).', pay:true},
+  {date:'2026-12-30', text:'Préstamos −$555.'},
+  {date:'2027-01-15', text:'Haces oficial $10,000. Último Atrato. Primer pago del dentista ($2,150).'},
+  {date:'2027-01-23', text:'PAGAR LA TARJETA COMPLETA (~$6,800).', pay:true},
+  {date:'2027-01-24', text:'Tu gasto personal pasa a tarjeta de débito.'},
+  {date:'2027-01-30', text:'Empieza el abono extra de $1,700 por quincena.'},
+  {date:'2027-06-30', text:'Último pago de los préstamos BBVA.'},
+];
+const GASTO_CATS = {comida:['Comida','var(--sage)'], super:['Súper','var(--sky)'], gusto:['Gusto','var(--lav)'], transporte:['Transporte','var(--gold)'], otro:['Otro','var(--clay)']};
+let GASTOS = [];          // [{id, iso, ts, amount, cat, note}]
+let TOPES_OVERRIDE = {};  // { 'q05': 3000 } — si ajustas el tope de una quincena
+let selectedCat = 'comida';
+
+const money = n => '$' + Math.round(n).toLocaleString('es-MX');
+const money2 = n => '$' + n.toLocaleString('es-MX', {minimumFractionDigits:0, maximumFractionDigits:2});
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function isoToDate(iso){ const p = iso.split('-').map(Number); return new Date(p[0], p[1]-1, p[2]); }
+function daysBetween(aIso, bIso){ return Math.round((isoToDate(bIso) - isoToDate(aIso)) / 86400000); }
+function shortDate(iso){ const d = isoToDate(iso); return d.getDate()+' '+MONTHS[d.getMonth()].slice(0,3); }
+
+async function loadDinero(){
+  try{ const r = await window.storage.get('dinero-gastos'); GASTOS = r ? JSON.parse(r.value) : []; }catch(e){ GASTOS = []; }
+  try{ const r = await window.storage.get('dinero-topes'); TOPES_OVERRIDE = r ? JSON.parse(r.value) : {}; }catch(e){ TOPES_OVERRIDE = {}; }
+}
+async function saveDinero(){
+  try{
+    await window.storage.set('dinero-gastos', JSON.stringify(GASTOS));
+    await window.storage.set('dinero-topes', JSON.stringify(TOPES_OVERRIDE));
+  }catch(e){}
+}
+
+function currentQ(){
+  const t = todayISO();
+  if(t < PLAN_Q[0].start) return PLAN_Q[0];
+  return PLAN_Q.find(q => t >= q.start && t <= q.end) || PLAN_Q[PLAN_Q.length-1];
+}
+const topeOf = q => (TOPES_OVERRIDE[q.id] !== undefined ? TOPES_OVERRIDE[q.id] : q.tope);
+const spentIn = q => GASTOS.filter(g => g.iso >= q.start && g.iso <= q.end).reduce((s,g) => s + g.amount, 0);
+function daysLeft(q){
+  const t = todayISO();
+  if(t < q.start) return daysBetween(q.start, q.end) + 1;
+  if(t > q.end) return 0;
+  return daysBetween(t, q.end) + 1;
+}
+function moneyState(q){
+  const tope = topeOf(q), spent = spentIn(q), left = tope - spent;
+  const pct = tope ? spent / tope : 0;
+  const dl = Math.max(daysLeft(q), 1);
+  let color = 'var(--sage)', msg = 'Vas bien. Lo que no gastes se va directo a tu colchón.';
+  if(left < 0){
+    color = 'var(--clay)';
+    msg = 'Te pasaste por '+money(-left)+'. No pasa nada: baja un poco en la siguiente quincena y seguimos.';
+  } else if(pct >= 0.75){
+    color = 'var(--gold)';
+    msg = 'Cerca del tope. Con calma: te quedan '+money(left)+' para '+dl+' día'+(dl>1?'s':'')+'.';
+  }
+  return {tope, spent, left, pct, dl, color, msg};
+}
+
+function renderDineroHero(){
+  const q = currentQ(), s = moneyState(q), t = todayISO();
+  const ended = t > PLAN_Q[PLAN_Q.length-1].end;
+  const pay = t < '2027-01-24' ? 'tarjeta de crédito' : 'tarjeta de débito';
+  const perDay = s.left > 0 ? '≈ '+money(s.left / s.dl)+' por día · '+s.dl+' día'+(s.dl>1?'s':'')+'<br>' : '';
+  document.getElementById('dinero-hero').innerHTML = `
+    <div class="card money-hero">
+      <div class="money-cap">Quincena ${q.label}</div>
+      <div class="money-big" style="color:${s.color}">${s.left<0?'−':''}${money(Math.abs(s.left))}</div>
+      <div class="money-cap">${s.left<0?'de más':'te quedan'} · tope ${money(s.tope)}<span class="edit-tope" onclick="editTope()" title="Ajustar tope">✎</span></div>
+      <div class="pbar"><div class="pbar-fill" style="width:${Math.min(100, s.pct*100)}%; background:${s.color};"></div></div>
+      <div class="money-sub">${perDay}${s.msg}</div>
+      ${ended ? '' : `<div class="pay-chip">Hoy pagas con: ${pay}</div>`}
+    </div>`;
+}
+
+function renderDineroList(){
+  const q = currentQ();
+  const items = GASTOS.filter(g => g.iso >= q.start && g.iso <= q.end).sort((a,b) => b.ts - a.ts);
+  const box = document.getElementById('dinero-list');
+  if(!items.length){ box.innerHTML = '<div class="empty-hint">Aún no has anotado gastos en esta quincena</div>'; return; }
+  box.innerHTML = items.map(g => {
+    const c = GASTO_CATS[g.cat] || GASTO_CATS.otro;
+    const d = isoToDate(g.iso).toLocaleDateString('es-MX', {weekday:'short', day:'numeric'});
+    return `<div class="exp-row">
+      <span class="exp-dot" style="background:${c[1]}"></span>
+      <div class="exp-main"><div class="exp-name">${esc(g.note || c[0])}</div><div class="exp-meta">${d} · ${c[0]}</div></div>
+      <span class="exp-amt">${money2(g.amount)}</span>
+      <span class="exp-del" data-del="${g.id}" title="Borrar">✕</span>
+    </div>`;
+  }).join('');
+}
+
+function renderDineroFechas(){
+  const t = todayISO();
+  const next = KEY_DATES.filter(d => d.date >= t).slice(0, 4);
+  document.getElementById('dinero-fechas').innerHTML = next.length
+    ? next.map(d => `<div class="kd-row"><div class="kd-date">${shortDate(d.date)}</div><div class="kd-text ${d.pay?'pay':''}">${d.text}</div></div>`).join('')
+    : '<div class="empty-hint">Plan completado</div>';
+}
+
+function renderDineroDeuda(){
+  const t = todayISO();
+  let bal = DEBT_START;
+  DEBT_SCHEDULE.forEach(([d, b]) => { if(d <= t) bal = b; });
+  const pct = Math.round((1 - bal / DEBT_START) * 100);
+  const months = Math.max(0, Math.round(daysBetween(t, '2027-06-30') / 30.4));
+  document.getElementById('dinero-deuda').innerHTML = `
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:baseline;">
+        <span style="font-family:var(--serif); font-size:25px;">${money(bal)}</span>
+        <span style="font-size:12px; color:var(--tx2);">${pct}% pagado</span>
+      </div>
+      <div class="pbar"><div class="pbar-fill" style="width:${pct}%; background:var(--sage);"></div></div>
+      <div class="money-note">${bal > 0 ? 'Terminas el 30 de junio de 2027 (faltan ~'+months+' meses). ' : 'Préstamos liquidados. '}Es el saldo estimado del plan; el saldo real está en tu app de BBVA.</div>
+    </div>`;
+}
+
+function renderDineroQuincenas(){
+  const cur = currentQ(), t = todayISO();
+  document.getElementById('dinero-quincenas').innerHTML = PLAN_Q.map(q => {
+    const tope = topeOf(q), started = t >= q.start, spent = started ? spentIn(q) : 0;
+    const pct = tope ? Math.min(100, spent / tope * 100) : 0;
+    const col = spent > tope ? 'var(--clay)' : (spent / tope >= 0.75 ? 'var(--gold)' : 'var(--sage)');
+    return `<div class="q-row ${q.id===cur.id?'cur':''}">
+      <div class="q-label">${q.label}</div>
+      <div class="q-bar"><div class="pbar"><div class="pbar-fill" style="width:${pct}%; background:${col};"></div></div></div>
+      <div class="q-nums">${started ? money(spent)+' / ' : ''}${money(tope)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderDineroHoy(){
+  const q = currentQ(), s = moneyState(q);
+  document.getElementById('dinero-hoy-card').innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+      <span style="font-family:var(--serif); font-size:27px; color:${s.color};">${s.left<0?'−':''}${money(Math.abs(s.left))}</span>
+      <span style="font-size:12px; color:var(--tx2);">${s.left<0?'de más':'te quedan'} · ${q.label}</span>
+    </div>
+    <div class="pbar"><div class="pbar-fill" style="width:${Math.min(100, s.pct*100)}%; background:${s.color};"></div></div>
+    <div style="font-size:12px; color:var(--tx2); margin-top:10px;">${s.left>0 ? '≈ '+money(s.left / s.dl)+' por día · ' : ''}toca para anotar un gasto</div>`;
+}
+
+function renderDinero(){
+  renderDineroHero(); renderDineroList(); renderDineroFechas(); renderDineroDeuda(); renderDineroQuincenas();
+}
+
+async function addGasto(){
+  const inp = document.getElementById('gasto-monto');
+  const amount = parseFloat(inp.value);
+  if(!(amount > 0)){ showToast('Escribe el monto del gasto', 'warn'); return; }
+  const back = parseInt(document.getElementById('gasto-dia').value) || 0;
+  const d = new Date(); d.setDate(d.getDate() - back);
+  GASTOS.push({id:'g'+Date.now(), iso:isoOf(d), ts:Date.now(), amount, cat:selectedCat,
+    note:document.getElementById('gasto-nota').value.trim()});
+  await saveDinero();
+  inp.value = ''; document.getElementById('gasto-nota').value = ''; document.getElementById('gasto-dia').value = '0';
+  renderDinero(); renderDineroHoy();
+  const s = moneyState(currentQ());
+  if(s.left >= 0) showToast('Anotado · te quedan '+money(s.left), 'ok');
+  else showToast('Anotado · pasaste el tope por '+money(-s.left), 'warn');
+}
+async function delGasto(id){
+  GASTOS = GASTOS.filter(g => g.id !== id);
+  await saveDinero();
+  renderDinero(); renderDineroHoy();
+}
+async function editTope(){
+  const q = currentQ();
+  const v = prompt('Tope de gasto para la quincena '+q.label+':', topeOf(q));
+  if(v === null) return;
+  const n = parseFloat(String(v).replace(/[$,\s]/g, ''));
+  if(!(n > 0)) return;
+  TOPES_OVERRIDE[q.id] = n;
+  await saveDinero();
+  renderDinero(); renderDineroHoy();
+}
+document.getElementById('cat-row').addEventListener('click', (e)=>{
+  const chip = e.target.closest('.cat-chip');
+  if(!chip) return;
+  selectedCat = chip.dataset.cat;
+  document.querySelectorAll('.cat-chip').forEach(c => c.classList.toggle('active', c === chip));
+});
+document.getElementById('dinero-list').addEventListener('click', (e)=>{
+  const del = e.target.closest('[data-del]');
+  if(del) delGasto(del.dataset.del);
+});
+document.getElementById('gasto-monto').addEventListener('keydown', (e)=>{ if(e.key === 'Enter') addGasto(); });
+document.getElementById('gasto-nota').addEventListener('keydown', (e)=>{ if(e.key === 'Enter') addGasto(); });
+
 /* ============ INIT ============ */
 async function init(){
   await loadState();
   await loadPendientes();
+  await loadDinero();
   renderHeaderDate();
   renderHoy();
   renderCuerpo();
@@ -948,6 +1253,8 @@ async function init(){
   renderWeekTabs();
   renderRoutineBody();
   renderPrinciples();
+  renderDinero();
+  renderDineroHoy();
 }
 init();
 

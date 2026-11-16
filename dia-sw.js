@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dia-v1';
+const CACHE_NAME = 'dia-v2';
 const ASSETS = ['./dia.html'];
 
 self.addEventListener('install', (event) => {
